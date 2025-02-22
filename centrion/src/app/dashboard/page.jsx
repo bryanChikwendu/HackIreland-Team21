@@ -12,9 +12,9 @@ export default function DashboardPage() {
   const searchParams = useSearchParams();
   const cameraQuery = searchParams.get("camera");
 
-  const [cameras, setCameras] = useState(mockCameras);
-  const [selectedCamera, setSelectedCamera] = useState(null);
-  const [isCameraExpanded, setIsCameraExpanded] = useState(false);
+  const [cameras] = useState(mockCameras);
+  const [selectedCamera, setSelectedCamera] = useState(cameraQuery || null);
+  const [isCameraExpanded, setIsCameraExpanded] = useState(!!cameraQuery);
   const fullscreenRef = useRef(null);
 
   const categorizedCameras = cameras.reduce((acc, camera) => {
@@ -34,6 +34,9 @@ export default function DashboardPage() {
     if (cameraQuery && cameras.some((cam) => cam.id === cameraQuery)) {
       setSelectedCamera(cameraQuery);
       setIsCameraExpanded(true);
+    } else if (!cameraQuery) {
+      setSelectedCamera(null);
+      setIsCameraExpanded(false);
     }
   }, [cameraQuery, cameras]);
 
@@ -55,13 +58,16 @@ export default function DashboardPage() {
   };
 
   const toggleSelectedCamera = () => {
-    setIsCameraExpanded(!isCameraExpanded);
+    setIsCameraExpanded((prev) => !prev);
+    if (!isCameraExpanded) {
+      router.push(`/dashboard?camera=${selectedCamera}`, { scroll: false });
+    } else {
+      router.push(`/dashboard`, { scroll: false });
+    }
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
-      <h1 className="text-2xl font-bold">Live Camera Feeds</h1>
-
+    <div className="p-6 lg:p-8 space-y-6" style={{ paddingTop: "0px" }}>
       {/* Selected Camera View (Collapsible) */}
       {selectedCamera && (
         <div className="mb-4 bg-white rounded-lg shadow">
@@ -128,9 +134,15 @@ export default function DashboardPage() {
                     selectedCamera === camera.id ? "ring-2 ring-blue-500" : "hover:ring-1 hover:ring-slate-300"
                   }`}
                   onClick={() => {
-                    router.push("/dashboard?camera=" + camera.id);
-                    setSelectedCamera(camera.id);
-                    setIsCameraExpanded(true);
+                    if (selectedCamera === camera.id) {
+                      router.push("/dashboard", { scroll: false });
+                      setSelectedCamera(null);
+                      setIsCameraExpanded(false);
+                    } else {
+                      router.push(`/dashboard?camera=${camera.id}`, { scroll: false });
+                      setSelectedCamera(camera.id);
+                      setIsCameraExpanded(true);
+                    }
                   }}
                 >
                   <div className="relative aspect-video bg-slate-200">

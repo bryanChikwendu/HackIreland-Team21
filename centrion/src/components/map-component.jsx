@@ -47,11 +47,12 @@ function MapComponent({ locations }) {
 
   return (
     <MapContainer
-      center={[53.3498, -6.2603]} // Default to Dublin
+      center={[53.3498, -6.2603]}
       zoom={13}
-      style={{ height: "100%", width: "100%" }}
+      style={{ height: "100%", width: "100%", zIndex: 1 }}
       className="rounded-lg shadow"
     >
+
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
       {locations.map((loc, index) => (

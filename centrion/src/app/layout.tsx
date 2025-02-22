@@ -1,12 +1,15 @@
 "use client";
 
 import "@/app/global.css";
+import { useState } from "react";
 import { Sidebar } from "@/components/ui/sidebar";
 import { Header } from "@/components/ui/header";
 
 import { ReactNode } from "react";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
     <html lang="en">
       <head>
@@ -16,9 +19,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="description" content="AI-powered surveillance system that understands context rather than just recording footage" />
       </head>
       <body className="flex h-screen overflow-hidden bg-slate-50">
-        <Sidebar />
+        <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header />
+          <Header setIsSidebarOpen={setIsSidebarOpen} />
           <main className="flex-1 overflow-auto p-6 lg:p-8">{children}</main>
         </div>
       </body>
