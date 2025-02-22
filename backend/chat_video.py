@@ -1,8 +1,11 @@
 from os import read
+import sys
 import replicate
 from replicate.client import Client
-
-# video = open("./path/to/my/video.mp4", "rb");
+if len(sys.argv) >= 2:
+    video = open(sys.argv[2], "rb");
+else:
+    video = "dummy_url_here"
 
 with open(".env", 'r') as file:
     token = file.read()
@@ -10,8 +13,8 @@ with open(".env", 'r') as file:
 replicate = Client(api_token=token)
 
 input = {
-    "video": "https://replicate.delivery/pbxt/MV1tNGskZ6lDM0iDmHelOin3dAvOmsbSGQUW6KYhhwKiQMUT/bear.mp4",
-    "prompt": "What is unusual in the video?"
+    "video": video,
+    "prompt": sys.argv[1]
 }
 
 
