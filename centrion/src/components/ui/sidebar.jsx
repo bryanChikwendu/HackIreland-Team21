@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // ✅ Import usePathname to get the current route
+import { usePathname } from "next/navigation";
 import { Camera, Map, AlertTriangle, Users, Settings, Shield, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 export function Sidebar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const pathname = usePathname(); // ✅ Get the current URL path
+  const pathname = usePathname();
 
   return (
     <div
