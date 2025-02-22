@@ -1,23 +1,21 @@
-import "./global.css"
-import { Inter } from "next/font/google"
-// import { Toaster } from "./app/components/ui/use-toast"
+"use client";
 
-const inter = Inter({ subsets: ["latin"] })
-
-export const metadata = {
-  title: "Centrion - Context-Aware Security Surveillance",
-  description: "AI-powered surveillance system that understands context rather than just recording footage",
-}
+import "@/app/global.css";
+import { Sidebar } from "@/components/ui/sidebar";
+import { Header } from "@/components/ui/header";
 
 import { ReactNode } from "react";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        {children}
-        {/* <Toaster /> */}
+      <body className="flex h-screen overflow-hidden bg-slate-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-auto p-6 lg:p-8">{children}</main>
+        </div>
       </body>
     </html>
-  )
+  );
 }
