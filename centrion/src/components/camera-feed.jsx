@@ -53,12 +53,12 @@ export function CameraFeed({ cameraId, streamUrl }) {
       )}
 
       {/* Camera ID and Timestamp (Only rendered after hydration) */}
-      {currentTime && (
+      {/* {currentTime && (
         <div className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded-sm">
           <div>ID: {cameraId}</div>
           <div>{currentTime}</div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
