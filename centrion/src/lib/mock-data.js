@@ -4,7 +4,7 @@
 export const mockCameras = [
   { 
     id: 'test-camera', 
-    name: 'iPhone Camera', 
+    name: 'Web camera', 
     location: 'Here',
     type: 'Webcam',
     status: 'active' 
@@ -28,7 +28,7 @@ export const mockCameras = [
 ]
 
 export const mockLocations = [
-  { cameraId: 'test-camera', name: 'iPhone Camera', lat: 53.3490173, lng: -6.2529201 },
+  { cameraId: 'test-camera', name: 'Web camera', lat: 53.3490173, lng: -6.2529201 },
   { cameraId: 'dublin-city', name: 'Dublin City', lat: 53.349805, lng: -6.260309 },
   { cameraId: 'bay', name: 'Bay', lat: 53.3032783, lng: -6.1334416 },
 ]

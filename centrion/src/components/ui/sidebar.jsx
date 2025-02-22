@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Camera, Map, AlertTriangle, Users, Settings, Shield, LogOut, X, Plus } from "lucide-react";
+import { Camera, Map, AlertTriangle, Users, Settings, Shield, LogOut, X, Plus, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
@@ -90,6 +90,20 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                   <Link href="/alerts">
                     <AlertTriangle className="w-4 h-4 mr-3" />
                     <span>Alerts</span>
+                  </Link>
+                </Button>
+              </li>
+              <li>
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start ${
+                    pathname === "/actions" ? "text-blue-400 font-semibold" : "text-slate-400"
+                  }`}
+                  asChild
+                >
+                  <Link href="/actions">
+                    <Activity className="w-4 h-4 mr-3" />
+                    <span>Actions</span>
                   </Link>
                 </Button>
               </li>
