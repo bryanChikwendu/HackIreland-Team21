@@ -31,7 +31,7 @@ export function Header() {
         <Menu className="h-6 w-6" />
       </Button>
 
-      <h1 className="text-xl font-semibold hidden lg:block">Security Dashboard</h1>
+      <h1 className="text-xl font-semibold hidden lg:block">Dashboard</h1>
 
       <div className="flex items-center space-x-4">
         {/* Notifications Dropdown */}

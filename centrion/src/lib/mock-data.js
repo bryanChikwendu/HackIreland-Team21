@@ -6,6 +6,7 @@ export const mockCameras = [
     id: 'test-camera', 
     name: 'iPhone Camera', 
     location: 'Here',
+    type: 'Webcam',
     status: 'active' 
   },
   { 
@@ -13,6 +14,7 @@ export const mockCameras = [
     name: 'Dublin City', 
     location: 'O\'Connell Street',
     status: 'active',
+    type: 'Security Camera',
     streamUrl: 'https://media.evercam.io/live/Z3BvY2FtfEdQT0NhbQ==/index.m3u8?stream_token=i94B7mV5ZDf6HgXdWxqrEGD4uolWdYvL_ARPEDnGCCjyzi2VzvEObT9yAozOAzoXuHHsYP1P3kv5Dm5eCyi0WSa9fcSst4r8_wm2Hf0GZPkk5zbMy09GY5eU-9kGaQXjRNPjXhlCtLeYMQGc4puYlw=='
   },
   { 
@@ -20,6 +22,7 @@ export const mockCameras = [
     name: 'Bay', 
     location: 'Dublin Bay',
     status: 'active',
+    type: 'Security Camera',
     streamUrl: 'https://s14.ipcamlive.com/streams/0etsvhlzep3ncaekw/stream.m3u8'
   },
 ]
