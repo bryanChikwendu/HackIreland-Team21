@@ -29,9 +29,9 @@ export function CameraFeed({ cameraId, streamUrl }) {
   return (
     <div className="w-full h-full bg-black flex items-center justify-center relative">
       {cameraId === "test-camera" ? (
-        <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+        <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover"/>
       ) : streamUrl ? (
-        <ReactPlayer url={streamUrl} playing controls width="100%" height="100%" />
+        <ReactPlayer url={streamUrl} autoPlay playing width="100%" height="100%" muted/>
       ) : (
         <div className="text-white">No stream available</div>
       )}

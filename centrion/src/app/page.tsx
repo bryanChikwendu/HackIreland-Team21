@@ -9,7 +9,9 @@ import { Shield } from "lucide-react"
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleLogin = (e) => {
+  interface LoginFormEvent extends React.FormEvent<HTMLFormElement> {}
+
+  const handleLogin = (e: LoginFormEvent): void => {
     e.preventDefault()
     setIsLoading(true)
     

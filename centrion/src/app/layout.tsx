@@ -9,7 +9,9 @@ export const metadata = {
   description: "AI-powered surveillance system that understands context rather than just recording footage",
 }
 
-export default function RootLayout({ children }) {
+import { ReactNode } from "react";
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className={inter.className}>

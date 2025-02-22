@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Input } from "@/components/ui/input";
+import { useRef } from "react"
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -47,6 +48,18 @@ export default function DashboardPage() {
   const [selectedAlert, setSelectedAlert] = useState(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { toast } = useToast()
+
+  const fullscreenRef = useRef(null)
+
+  const handleFullscreen = () => {
+    if (fullscreenRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen()
+      } else {
+        fullscreenRef.current.requestFullscreen()
+      }
+    }
+  }
   
   // Client-side only code
   useEffect(() => {
@@ -390,13 +403,13 @@ export default function DashboardPage() {
               
               {/* Selected Camera View */}
               {selectedCamera && (
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden" style={{ marginBottom: '2rem' }}>
                   <div className="p-4 border-b">
                     <div className="flex justify-between items-center">
                       <h3 className="font-semibold text-lg">
                         {cameras.find(c => c.id === selectedCamera)?.name}
                       </h3>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={handleFullscreen}>
                         <Maximize className="h-4 w-4 mr-2" />
                         Fullscreen
                       </Button>
@@ -404,9 +417,9 @@ export default function DashboardPage() {
                   </div>
                   
                   <div className="grid grid-cols-1 lg:grid-cols-3 lg:divide-x">
-                    <div className="lg:col-span-2">
+                    <div className="lg:col-span-2" ref={fullscreenRef}>
                       <div className="aspect-video bg-slate-200 relative">
-                        <CameraFeed cameraId={selectedCamera} fullView={true} />
+                        <CameraFeed cameraId={selectedCamera} fullView={true} streamUrl={cameras.find(c => c.id === selectedCamera)?.streamUrl} />
                       </div>
                     </div>
                     
