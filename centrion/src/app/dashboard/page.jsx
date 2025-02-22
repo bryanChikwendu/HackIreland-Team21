@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CameraFeed } from "@/components/camera-feed";
-import { mockCameras, mockAlerts } from "@/lib/mock-data";
+import { mockCameras } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Maximize, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -13,21 +13,19 @@ export default function DashboardPage() {
   const cameraQuery = searchParams.get("camera");
 
   const [cameras, setCameras] = useState(mockCameras);
-  const [alerts, setAlerts] = useState(mockAlerts);
   const [selectedCamera, setSelectedCamera] = useState(null);
+  const [isCameraExpanded, setIsCameraExpanded] = useState(false);
   const fullscreenRef = useRef(null);
 
-  // ✅ Group cameras by type
   const categorizedCameras = cameras.reduce((acc, camera) => {
     if (!acc[camera.type]) acc[camera.type] = [];
     acc[camera.type].push(camera);
     return acc;
   }, {});
 
-  // ✅ State to track expanded/collapsed categories
   const [expandedCategories, setExpandedCategories] = useState(
     Object.keys(categorizedCameras).reduce((acc, type) => {
-      acc[type] = true; // Default: expanded
+      acc[type] = true;
       return acc;
     }, {})
   );
@@ -35,10 +33,9 @@ export default function DashboardPage() {
   useEffect(() => {
     if (cameraQuery && cameras.some((cam) => cam.id === cameraQuery)) {
       setSelectedCamera(cameraQuery);
-    } else if (!selectedCamera && cameras.length > 0) {
-      setSelectedCamera(cameras[0].id);
+      setIsCameraExpanded(true);
     }
-  }, [cameraQuery, cameras, selectedCamera]);
+  }, [cameraQuery, cameras]);
 
   const handleFullscreen = () => {
     if (fullscreenRef.current) {
@@ -57,31 +54,53 @@ export default function DashboardPage() {
     }));
   };
 
+  const toggleSelectedCamera = () => {
+    setIsCameraExpanded(!isCameraExpanded);
+  };
+
   return (
     <div className="p-6 lg:p-8 space-y-6">
       <h1 className="text-2xl font-bold">Live Camera Feeds</h1>
 
-      {/* Selected Camera View */}
+      {/* Selected Camera View (Collapsible) */}
       {selectedCamera && (
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="p-4 border-b flex justify-between items-center">
-            <h3 className="font-semibold text-lg">{cameras.find((c) => c.id === selectedCamera)?.name}</h3>
-            <Button variant="outline" size="sm" onClick={handleFullscreen}>
-              <Maximize className="h-4 w-4 mr-2" />
-              Fullscreen
-            </Button>
+        <div className="mb-4 bg-white rounded-lg shadow">
+          {/* Selected Camera Header */}
+          <div
+            className="flex justify-between items-center p-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-t-lg"
+            onClick={toggleSelectedCamera}
+          >
+            <span className="text-lg font-semibold flex items-center">
+              Active Camera Feed
+            </span>
+            {isCameraExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 lg:divide-x">
-            <div className="lg:col-span-2" ref={fullscreenRef}>
-              <div className="aspect-video bg-slate-200 relative">
-                <CameraFeed
-                  cameraId={selectedCamera}
-                  fullView={true}
-                  streamUrl={cameras.find((c) => c.id === selectedCamera)?.streamUrl}
-                />
+
+          {/* Expanded Camera Feed */}
+          {isCameraExpanded && (
+            <div className="p-4">
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="p-4 border-b flex justify-between items-center">
+                  <h3 className="font-semibold text-lg">{cameras.find((c) => c.id === selectedCamera)?.name}</h3>
+                  <Button variant="outline" size="sm" onClick={handleFullscreen}>
+                    <Maximize className="h-4 w-4 mr-2" />
+                    Fullscreen
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 lg:divide-x">
+                  <div className="lg:col-span-2" ref={fullscreenRef}>
+                    <div className="aspect-video bg-slate-200 relative">
+                      <CameraFeed
+                        cameraId={selectedCamera}
+                        fullView={true}
+                        streamUrl={cameras.find((c) => c.id === selectedCamera)?.streamUrl}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -96,11 +115,7 @@ export default function DashboardPage() {
             <span className="text-lg font-semibold">
               {type} ({cameras.length})
             </span>
-            {expandedCategories[type] ? (
-              <ChevronUp className="w-5 h-5" />
-            ) : (
-              <ChevronDown className="w-5 h-5" />
-            )}
+            {expandedCategories[type] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </div>
 
           {/* Camera Grid (Only Show When Expanded) */}
@@ -115,6 +130,7 @@ export default function DashboardPage() {
                   onClick={() => {
                     router.push("/dashboard?camera=" + camera.id);
                     setSelectedCamera(camera.id);
+                    setIsCameraExpanded(true);
                   }}
                 >
                   <div className="relative aspect-video bg-slate-200">
