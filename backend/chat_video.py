@@ -3,18 +3,23 @@ import sys
 import replicate
 from replicate.client import Client
 if len(sys.argv) >= 2:
-    video = open(sys.argv[2], "rb");
+    video = open(sys.argv[1], "rb");
 else:
-    video = "dummy_url_here"
+    video = "https://replicate.delivery/pbxt/MV1tNGskZ6lDM0iDmHelOin3dAvOmsbSGQUW6KYhhwKiQMUT/bear.mp4"
 
 with open(".env", 'r') as file:
-    token = file.read()
+    token = file.readline().strip('\n')
 
 replicate = Client(api_token=token)
 
+prompt = "What is happening in the video?"
+if (len(sys.argv) >= 2):
+    sentence = ' '.join(sys.argv[2:])
+    prompt = sentence
+
 input = {
     "video": video,
-    "prompt": sys.argv[1]
+    "prompt": prompt
 }
 
 
