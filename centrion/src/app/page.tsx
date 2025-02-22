@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CameraFeed } from "@/components/camera-feed";
-import { MapComponent } from "@/components/map-component";
 import { mockCameras, mockLocations } from "@/lib/mock-data";
 
 export default function DashboardPage() {

@@ -8,30 +8,29 @@ const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
 export function CameraFeed({ cameraId, streamUrl }) {
   const videoRef = useRef(null);
-  const [currentTime, setCurrentTime] = useState(null); // Ensure it's `null` initially
+  const [currentTime, setCurrentTime] = useState(null);
+  const [error, setError] = useState(null); // ✅ Reset error on camera change
+  const [status, setStatus] = useState("active"); // ✅ Reset status on camera change
 
   useEffect(() => {
-    // Ensure date is only set on client-side
-    const updateTime = () => {
-      setCurrentTime(new Date().toLocaleString());
-    };
+    // ✅ Reset error and status when camera changes
+    setError(null);
+    setStatus("active");
 
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
     if (cameraId === "test-camera") {
       navigator.mediaDevices
         .getUserMedia({ video: true })
         .then((stream) => {
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
+            setStatus("active");
           }
         })
-        .catch((error) => console.error("Error accessing camera:", error));
+        .catch((error) => {
+          console.error("Webcam access error:", error);
+          setError("No Connection");
+          setStatus("offline");
+        });
 
       return () => {
         if (videoRef.current?.srcObject) {
@@ -39,26 +38,49 @@ export function CameraFeed({ cameraId, streamUrl }) {
           tracks.forEach((track) => track.stop());
         }
       };
+    } else if (!streamUrl) {
+      setStatus("offline");
+      setError("No Stream Available");
     }
-  }, [cameraId]);
+  }, [cameraId, streamUrl]); // ✅ Ensure effect runs when cameraId changes
 
   return (
     <div className="w-full h-full bg-black flex items-center justify-center relative">
-      {cameraId === "test-camera" ? (
+      {/* ✅ Show "No Connection" only if this camera is affected */}
+      {error ? (
+        <div className="text-white text-sm">{error}</div>
+      ) : cameraId === "test-camera" ? (
         <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
       ) : streamUrl ? (
-        <ReactPlayer url={streamUrl} playing controls width="100%" height="100%" muted />
+        <ReactPlayer
+          url={streamUrl}
+          playing
+          controls
+          width="100%"
+          height="100%"
+          muted
+          onError={() => {
+            setStatus("offline");
+            setError("No Stream Available");
+          }}
+        />
       ) : (
-        <div className="text-white">No stream available</div>
+        <div className="text-white text-sm">No Stream Available</div>
       )}
 
-      {/* Camera ID and Timestamp (Only rendered after hydration) */}
-      {/* {currentTime && (
+      {/* ✅ Camera ID and Timestamp */}
+      {currentTime && (
         <div className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded-sm">
           <div>ID: {cameraId}</div>
           <div>{currentTime}</div>
         </div>
-      )} */}
+      )}
+
+      {/* ✅ Camera Status Indicator */}
+      <div className="absolute top-2 right-2 flex items-center space-x-1.5 bg-slate-900/70 text-white text-xs px-2 py-1 rounded-full">
+        <span className={`h-2 w-2 rounded-full ${status === "active" ? "bg-green-500" : "bg-red-500"}`}></span>
+        <span>{status === "active" ? "Live" : "Offline"}</span>
+      </div>
     </div>
   );
 }

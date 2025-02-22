@@ -54,9 +54,9 @@ function MapComponent({ locations }) {
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      {locations.map((loc) => (
+      {locations.map((loc, index) => (
         <Marker
-          key={loc.id}
+          key={loc.id || index} // ✅ Ensure each key is unique
           position={[loc.lat, loc.lng]}
           icon={cameraIcon}
           eventHandlers={{
@@ -64,12 +64,7 @@ function MapComponent({ locations }) {
           }}
         >
           {/* Always Visible Camera Name */}
-          <Tooltip
-            direction="top"
-            offset={[0, -25]}
-            opacity={1}
-            permanent // Keeps text visible at all times
-          >
+          <Tooltip direction="top" offset={[0, -25]} opacity={1} permanent>
             <span
               className="cursor-pointer text-blue-500 font-bold hover:underline"
               onClick={(e) => {

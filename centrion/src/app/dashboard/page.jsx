@@ -6,8 +6,10 @@ import { CameraFeed } from "@/components/camera-feed";
 import { mockCameras, mockAlerts } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Maximize } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const cameraQuery = searchParams.get("camera");
   const [cameras, setCameras] = useState(mockCameras);
@@ -45,16 +47,19 @@ export default function DashboardPage() {
             className={`bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer transition duration-200 ease-in-out ${
               selectedCamera === camera.id ? "ring-2 ring-blue-500" : "hover:ring-1 hover:ring-slate-300"
             }`}
-            onClick={() => setSelectedCamera(camera.id)}
+            onClick={() => {
+              router.push("/dashboard?camera=" + camera.id);
+              setSelectedCamera(camera.id);
+            }}
           >
             <div className="relative aspect-video bg-slate-200">
               <CameraFeed cameraId={camera.id} streamUrl={camera.streamUrl} />
 
               {/* Camera status indicator */}
-              <div className="absolute top-2 right-2 flex items-center space-x-1.5 bg-slate-900/70 text-white text-xs px-2 py-1 rounded-full">
-                <span className={`h-2 w-2 rounded-full ${camera.status === "active" ? "bg-green-500" : "bg-red-500"}`}></span>
-                <span>{camera.status === "active" ? "Live" : "Offline"}</span>
-              </div>
+              {/* <div className="absolute top-2 right-2 flex items-center space-x-1.5 bg-slate-900/70 text-white text-xs px-2 py-1 rounded-full"> */}
+                {/* <span className={`h-2 w-2 rounded-full ${camera.status === "active" ? "bg-green-500" : "bg-red-500"}`}></span> */}
+                {/* <span>{camera.status === "active" ? "Live" : "Offline"}</span> */}
+              {/* </div> */}
             </div>
             <div className="p-3">
               <h3 className="font-medium">{camera.name}</h3>
