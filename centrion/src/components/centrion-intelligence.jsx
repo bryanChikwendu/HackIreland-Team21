@@ -1,11 +1,8 @@
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Upload, Play, Pause, Search, ChevronRight, Clock } from 'lucide-react';
 
@@ -66,6 +63,7 @@ const CentrionIntelligence = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [highlights, setHighlights] = useState([]);
+  const [isThinking, setIsThinking] = useState(false); // For AI thinking state
   const videoRef = useRef(null);
 
   const handleFileUpload = (event) => {
@@ -132,11 +130,14 @@ const CentrionIntelligence = () => {
     };
 
     setMessages(prev => [...prev, newMessage]);
+    setInputMessage(''); // Clear input after submitting
+
+    setIsThinking(true); // Enable thinking animation (3 dots)
 
     try {
       // Create a local file path from the selected video
       const videoPath = selectedVideo.name; // You'll need to adjust this based on how you want to handle file paths
-      const testPath = "/Users/eniola/Downloads/" + videoPath;
+      const testPath = "/Users/admin/Documents/Hackathon/" + videoPath; // change the path for yours!!!!
       console.log(testPath)
       const response = await fetch('http://127.0.0.1:8000/ask', {
         method: 'POST',
@@ -193,7 +194,7 @@ const CentrionIntelligence = () => {
       setMessages(prev => [...prev, errorMessage]);
     }
 
-    setInputMessage('');
+    setIsThinking(false); // Disable thinking animation
   };
 
   return (
@@ -286,6 +287,11 @@ const CentrionIntelligence = () => {
                     </div>
                   </div>
                 ))}
+                {isThinking && (
+                  <div className="flex justify-center">
+                    <div className="text-gray-500 dark:text-gray-400 text-sm">Thinking...</div>
+                  </div>
+                )}
               </div>
             </ScrollArea>
 
