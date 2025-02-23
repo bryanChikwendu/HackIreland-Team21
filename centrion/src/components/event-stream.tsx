@@ -19,9 +19,9 @@ export default function EventStream({ websocketClient, isConnected }: EventStrea
   const eventsEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new events come in
-  useEffect(() => {
-    eventsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [events]);
+  // useEffect(() => {
+  //   eventsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [events]);
 
   // Handle incoming AI responses
   useEffect(() => {
@@ -51,7 +51,8 @@ export default function EventStream({ websocketClient, isConnected }: EventStrea
 
       const pollForEvents = () => {
         websocketClient.sendText(
-          "Describe any new or notable changes in what you see in the video feed. Focus only on significant changes and keep your response to a single, brief sentence."
+          "Describe what you see in the video"
+          // "Describe any new or notable changes in what you see in the video feed. Focus only on significant changes and keep your response to a single, brief sentence."
         );
       };
 

@@ -205,7 +205,7 @@ export default function DashboardPage() {
           >
             <CardContent className="p-0">
               <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-t-lg overflow-hidden">
-                <CameraFeed cameraId={camera.id} streamUrl={camera.streamUrl} />
+                <VideoFeed cameraId={camera.id} streamUrl={camera.streamUrl} />
               </div>
             </CardContent>
             <CardHeader>
