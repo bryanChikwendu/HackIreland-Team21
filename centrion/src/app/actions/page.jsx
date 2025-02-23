@@ -145,15 +145,15 @@ export default function ActionsPage() {
               </div>
 
               {/* Spaced Buttons */}
-              <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-3 sm:space-y-0">
+              <div className="flex justify-between items-center space-x-4">
                 {editMode && (
-                  <Button variant="destructive" onClick={handleDelete} className="w-full sm:w-auto">
+                  <Button variant="destructive" onClick={handleDelete}>
                     <Trash className="h-5 w-5 mr-2" />
                     Delete
                   </Button>
                 )}
-                <Button type="submit" className="w-full sm:w-auto">
-                  {editMode ? "Update Action" : "Add Action"}
+                <Button type="submit" className="w-full">
+                  {editMode ? "Update Listener" : "Add Listener"}
                 </Button>
               </div>
             </form>

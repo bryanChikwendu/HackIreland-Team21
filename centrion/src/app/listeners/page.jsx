@@ -150,7 +150,7 @@ export default function ListenersPage() {
                   value={newListener.action}
                   onChange={(e) => setNewListener({ ...newListener, action: e.target.value })}
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none bg-gray-100 dark:bg-gray-800"
+                  className="w-full px-3 py-2 border dark:border-gray-700 rounded-md focus:outline-none bg-gray-100 dark:bg-gray-800"
                 >
                   <option value="" disabled>Select an action</option>
                   {actionsList.map((action, idx) => (
