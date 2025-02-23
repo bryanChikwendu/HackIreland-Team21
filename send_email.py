@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 def send_email(recipient, subject, body):
     # Email configuration
-    sender_email = "testforhackireland@gmail.com"  # Replace with your email
-    sender_password = "HackingInDogPatch1"   # Replace with your app password
+    sender_email = "@gmail.com"  # Replace with your email
+    sender_password = ""   # Replace with your app password
     
     # Create message
     message = MIMEText(body)

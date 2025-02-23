@@ -22,7 +22,7 @@ import { ChevronRight, AlertTriangle, Activity, CheckCircle2, Clock, User } from
 export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "AIzaSyCYxC2hCbFC4ZfJXp-QwfZOYSQM_fgBx5I";
+  const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
 
   // State management
   const [cameras, setCameras] = useState([]);
