@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,14 +8,33 @@ import { Camera } from "lucide-react";
 
 export default function AddCameraPage() {
   const router = useRouter();
+  
+  // Load cameras from localStorage or set default empty array
+  const [cameras, setCameras] = useState(() => {
+    if (typeof window !== "undefined") {
+      return JSON.parse(localStorage.getItem("cameras")) || [];
+    }
+    return [];
+  });
+
   const [camera, setCamera] = useState({
+    id: `camera-${Date.now()}`,
     name: "",
     type: "Webcam",
     location: "",
+    lat: "",
+    lng: "",
     streamUrl: "",
+    status: "active",
   });
 
   const cameraTypes = ["Webcam", "Security Camera", "CCTV", "IP Camera"];
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cameras", JSON.stringify(cameras));
+    }
+  }, [cameras]);
 
   const handleChange = (e) => {
     setCamera({
@@ -27,17 +46,22 @@ export default function AddCameraPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("New Camera:", camera);
+    if (!camera.name || !camera.location || !camera.streamUrl || !camera.lat || !camera.lng) {
+      alert("Please fill in all fields!");
+      return;
+    }
 
-    // 🚀 TODO: Replace this with an API call to store the camera in the database
-    // Example: fetch("/api/cameras", { method: "POST", body: JSON.stringify(camera) });
+    const updatedCameras = [...cameras, camera];
+    setCameras(updatedCameras);
+    localStorage.setItem("cameras", JSON.stringify(updatedCameras));
 
+    console.log("New Camera Added:", camera);
     alert("Camera added successfully!");
     router.push("/dashboard");
   };
 
   return (
-    <div className="p-6 lg:p-8 max-w-lg mx-auto bg-white shadow-md rounded-lg">
+    <div className="p-6 lg:p-8 max-w-lg mx-auto bg-white dark:bg-gray-900 shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-4 flex items-center">
         <Camera className="w-6 h-6 mr-2" />
         Add New Camera
@@ -45,7 +69,7 @@ export default function AddCameraPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Camera Name</label>
+          <label className="block text-sm font-medium">Camera Name</label>
           <Input
             type="text"
             name="name"
@@ -57,7 +81,7 @@ export default function AddCameraPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Camera Type</label>
+          <label className="block text-sm font-medium">Camera Type</label>
           <select
             name="type"
             value={camera.type}
@@ -73,19 +97,47 @@ export default function AddCameraPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Location</label>
+          <label className="block text-sm font-medium">Location</label>
           <Input
             type="text"
             name="location"
             value={camera.location}
             onChange={handleChange}
             required
-            placeholder="Enter location"
+            placeholder="Enter location name"
           />
         </div>
 
+        {/* Latitude & Longitude Fields */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium">Latitude</label>
+            <Input
+              type="number"
+              name="lat"
+              value={camera.lat}
+              onChange={handleChange}
+              required
+              step="any"
+              placeholder="Enter latitude"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Longitude</label>
+            <Input
+              type="number"
+              name="lng"
+              value={camera.lng}
+              onChange={handleChange}
+              required
+              step="any"
+              placeholder="Enter longitude"
+            />
+          </div>
+        </div>
+
         <div>
-          <label className="block text-sm font-medium text-gray-700">Stream URL</label>
+          <label className="block text-sm font-medium">Stream URL</label>
           <Input
             type="text"
             name="streamUrl"

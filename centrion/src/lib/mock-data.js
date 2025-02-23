@@ -1,7 +1,7 @@
 // File: lib/mock-data.js
 // Mock data for the Centrion dashboard
 
-export const mockCameras = [
+export let mockCameras = [
   { 
     id: 'test-camera', 
     name: 'Web camera', 

@@ -1,182 +1,101 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { CameraFeed } from '@/components/camera-feed';
-import { mockCameras, mockAlerts } from '@/lib/mock-data';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Camera, 
-  AlertTriangle, 
-  Activity, 
-  Users, 
-  ChevronRight,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  User
-} from 'lucide-react';
-
-// Mock action history data
-const mockActionHistory = [
-  { id: 1, type: 'Alert Created', user: 'System', timestamp: new Date(Date.now() - 1000 * 60 * 5) },
-  { id: 2, type: 'Alert Acknowledged', user: 'John Doe', timestamp: new Date(Date.now() - 1000 * 60 * 4) },
-  { id: 3, type: 'Security Dispatched', user: 'Sarah Smith', timestamp: new Date(Date.now() - 1000 * 60 * 3) },
-  { id: 4, type: 'Situation Assessed', user: 'Mike Johnson', timestamp: new Date(Date.now() - 1000 * 60 * 2) },
-];
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CameraFeed } from "@/components/camera-feed";
+import { mockCameras, mockAlerts } from "@/lib/mock-data";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChevronRight, AlertTriangle, Activity, CheckCircle2, Clock, User } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedCamera, setSelectedCamera] = useState(searchParams.get('camera') || mockCameras[0]?.id);
+
+  // ✅ Load saved cameras from localStorage & append them to mockCameras
+  const [cameras, setCameras] = useState([]);
+  const [selectedCamera, setSelectedCamera] = useState(null);
   const [activeAlerts, setActiveAlerts] = useState([]);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
 
   useEffect(() => {
-    // Filter active alerts for the selected camera
-    const currentAlerts = mockAlerts.filter(
-      alert => alert.status === 'active' && alert.cameraId === selectedCamera
-    );
-    setActiveAlerts(currentAlerts);
+    if (typeof window !== "undefined") {
+      // Retrieve stored cameras from localStorage
+      const storedCameras = JSON.parse(localStorage.getItem("cameras")) || [];
+      
+      // Combine mockCameras with storedCameras
+      const combinedCameras = [...mockCameras, ...storedCameras];
+
+      // Set state with combined list
+      setCameras(combinedCameras);
+
+      // Set the first available camera as the default selected
+      setSelectedCamera(searchParams.get("camera") || combinedCameras[0]?.id);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedCamera) {
+      // Filter active alerts for the selected camera
+      const currentAlerts = mockAlerts.filter(
+        (alert) => alert.status === "active" && alert.cameraId === selectedCamera
+      );
+      setActiveAlerts(currentAlerts);
+    }
   }, [selectedCamera]);
 
-  const selectedCameraData = mockCameras.find(cam => cam.id === selectedCamera);
-
-  const handleAlertClick = (alert) => {
-    setSelectedAlert(alert);
-    setIsAlertModalOpen(true);
-  };
+  const selectedCameraData = cameras.find((cam) => cam.id === selectedCamera);
 
   return (
-    <>
-      <div className="space-y-8">
-        {/* Header Stats */}
-        {/* ... (previous stats code remains the same) ... */}
+    <div className="space-y-8 p-6 lg:p-8">
+      {/* Selected Camera Feed */}
+      {selectedCameraData && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>{selectedCameraData?.name}</CardTitle>
+              <p className="text-sm text-muted-foreground">{selectedCameraData?.location}</p>
+            </div>
+            <Badge variant={selectedCameraData?.status === "active" ? "default" : "destructive"}>
+              {selectedCameraData?.status === "active" ? "Live" : "Offline"}
+            </Badge>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="aspect-video rounded-lg overflow-hidden">
+              <CameraFeed cameraId={selectedCamera} streamUrl={selectedCameraData?.streamUrl} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column - Primary Feed and Alerts */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Primary Camera Feed */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div>
-                  <CardTitle>{selectedCameraData?.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">{selectedCameraData?.location}</p>
-                </div>
-                <Badge variant={selectedCameraData?.status === 'active' ? 'default' : 'destructive'}>
-                  {selectedCameraData?.status === 'active' ? 'Live' : 'Offline'}
-                </Badge>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="aspect-video rounded-lg overflow-hidden">
-                  <CameraFeed
-                    cameraId={selectedCamera}
-                    streamUrl={selectedCameraData?.streamUrl}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Camera Alerts */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div>
-                  <CardTitle>Camera Alerts</CardTitle>
-                  <CardDescription>Showing {activeAlerts.length} active alerts</CardDescription>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => router.push('/alerts')}>
-                  View All Alerts
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px] pr-4">
-                  <div className="space-y-4">
-                    {activeAlerts.map(alert => (
-                      <div
-                        key={alert.id}
-                        className="flex items-start space-x-4 p-4 bg-muted/10 rounded-lg hover:bg-muted/20 transition-colors cursor-pointer"
-                        onClick={() => handleAlertClick(alert)}
-                      >
-                        <div className="rounded-full p-2 bg-red-100 shrink-0">
-                          <AlertTriangle className="h-4 w-4 text-red-600" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium">{alert.detectionType}</p>
-                            <Badge variant="outline">{Math.round(alert.confidence * 100)}% confidence</Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{alert.context}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(alert.timestamp).toLocaleString()}
-                          </p>
-                        </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
-                      </div>
-                    ))}
-                    {activeAlerts.length === 0 && (
-                      <div className="text-center py-8">
-                        <div className="rounded-full bg-green-100 p-3 w-fit mx-auto">
-                          <Activity className="h-6 w-6 text-green-600" />
-                        </div>
-                        <h3 className="mt-4 text-sm font-medium">All Clear</h3>
-                        <p className="mt-2 text-sm text-muted-foreground">
-                          No active alerts for this camera
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Column - Secondary Feeds */}
-          <div className="lg:col-span-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Secondary Feeds</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {mockCameras.filter(cam => cam.id !== selectedCamera).slice(0, 4).map(camera => (
-                  <div
-                    key={camera.id}
-                    className="group relative aspect-video rounded-lg overflow-hidden cursor-pointer"
-                    onClick={() => {
-                      setSelectedCamera(camera.id);
-                      router.push(`/dashboard?camera=${camera.id}`);
-                    }}
-                  >
-                    <CameraFeed
-                      cameraId={camera.id}
-                      streamUrl={camera.streamUrl}
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Button variant="secondary" size="sm">
-                        Switch to Feed
-                      </Button>
-                    </div>
-                    <div className="absolute bottom-2 left-2 right-2 flex justify-between items-center">
-                      <span className="text-xs text-white font-medium">{camera.name}</span>
-                      <Badge
-                        variant={camera.status === 'active' ? 'default' : 'destructive'}
-                        className="text-xs"
-                      >
-                        {camera.status === 'active' ? 'Live' : 'Offline'}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+      {/* Camera List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cameras.map((camera) => (
+          <Card
+            key={camera.id}
+            className={`cursor-pointer transition duration-200 ease-in-out ${
+              selectedCamera === camera.id ? "ring-2 ring-blue-500" : "hover:ring-1 hover:ring-slate-300"
+            }`}
+            onClick={() => {
+              setSelectedCamera(camera.id);
+              router.push(`/dashboard?camera=${camera.id}`);
+            }}
+          >
+            <CardContent className="p-0">
+              <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
+                <CameraFeed cameraId={camera.id} streamUrl={camera.streamUrl} />
+              </div>
+            </CardContent>
+            <CardHeader>
+              <CardTitle>{camera.name}</CardTitle>
+              <CardDescription>{camera.location}</CardDescription>
+            </CardHeader>
+          </Card>
+        ))}
       </div>
 
       {/* Alert Detail Modal */}
@@ -188,7 +107,7 @@ export default function DashboardPage() {
               {new Date(selectedAlert?.timestamp).toLocaleString()}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Alert Information */}
             <div className="space-y-4">
@@ -198,7 +117,7 @@ export default function DashboardPage() {
                   {selectedAlert?.detectionType}
                 </Badge>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold mb-2">Context</h3>
                 <p className="text-sm text-muted-foreground">
@@ -244,31 +163,31 @@ export default function DashboardPage() {
             <h3 className="font-semibold mb-3">Action History</h3>
             <ScrollArea className="h-[200px]">
               <div className="space-y-3">
-                {mockActionHistory.map((action, index) => (
-                  <div 
-                    key={action.id}
-                    className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50"
-                  >
-                    <div className="rounded-full p-2 bg-background">
-                      {action.type.includes('Created') && <AlertTriangle className="h-4 w-4 text-yellow-600" />}
-                      {action.type.includes('Acknowledged') && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
-                      {action.type.includes('Dispatched') && <User className="h-4 w-4 text-purple-600" />}
-                      {action.type.includes('Assessed') && <Activity className="h-4 w-4 text-green-600" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-medium text-sm">{action.type}</p>
-                          <p className="text-xs text-muted-foreground">By {action.user}</p>
-                        </div>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {action.timestamp.toLocaleTimeString()}
-                        </div>
+              {mockAlerts.map((action, index) => (
+                <div 
+                  key={action?.id || index} // Ensure a unique key even if ID is missing
+                  className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50"
+                >
+                  <div className="rounded-full p-2 bg-background">
+                    {action?.type?.includes('Created') && <AlertTriangle className="h-4 w-4 text-yellow-600" />}
+                    {action?.type?.includes('Acknowledged') && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
+                    {action?.type?.includes('Dispatched') && <User className="h-4 w-4 text-purple-600" />}
+                    {action?.type?.includes('Assessed') && <Activity className="h-4 w-4 text-green-600" />}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium text-sm">{action?.type || "Unknown Action"}</p>
+                        <p className="text-xs text-muted-foreground">By {action?.user || "Unknown User"}</p>
+                      </div>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {action?.timestamp ? new Date(action.timestamp).toLocaleTimeString() : "N/A"}
                       </div>
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
               </div>
             </ScrollArea>
           </div>
@@ -283,6 +202,6 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
