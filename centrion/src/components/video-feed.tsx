@@ -1,67 +1,80 @@
-"use client";
 
 import React, { useRef, useEffect, useState } from 'react';
 import { captureVideoFrame } from '@/lib/utils';
 import { WebSocketClient } from '@/lib/websocket-client';
+import dynamic from "next/dynamic";
+
+// Lazy load ReactPlayer to prevent SSR issues
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
 interface VideoFeedProps {
-  websocketClient: WebSocketClient;
-  isConnected: boolean;
+  websocketClient?: WebSocketClient;
+  isConnected?: boolean;
+  isMainFeed?: boolean;
+  cameraId?: string;
+  streamUrl?: string;
 }
 
-// Changed to default export
-export default function VideoFeed({ websocketClient, isConnected }: VideoFeedProps) {
+const VideoFeed = ({ 
+  websocketClient, 
+  isConnected = false, 
+  isMainFeed = false,
+  cameraId,
+  streamUrl
+}: VideoFeedProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState("active");
 
-  // Start webcam
-  const startWebcam = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: true 
-      });
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-      
-      setStream(mediaStream);
-      setIsStreaming(true);
-      return mediaStream;
-    } catch (error) {
-      console.error('Error accessing webcam:', error);
-    }
-  };
+  // Initialize webcam
+  useEffect(() => {
+    setError(null);
+    setStatus("active");
 
-  // Stop webcam
-  const stopWebcam = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-      setIsStreaming(false);
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
-    }
-  };
+    if (cameraId === "test-camera") {
+      const startWebcam = async () => {
+        try {
+          const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+            video: true 
+          });
+          
+          if (videoRef.current) {
+            videoRef.current.srcObject = mediaStream;
+          }
+          
+          setStream(mediaStream);
+          setIsStreaming(true);
+          setStatus("active");
+        } catch (error) {
+          console.error('Error accessing webcam:', error);
+          setError("No Connection");
+          setStatus("offline");
+        }
+      };
 
-  // Toggle webcam
-  const toggleWebcam = async () => {
-    if (isStreaming) {
-      stopWebcam();
-    } else {
-      await startWebcam();
+      startWebcam();
+
+      return () => {
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          setStream(null);
+          setIsStreaming(false);
+        }
+      };
+    } else if (!streamUrl) {
+      setStatus("offline");
+      setError("No Stream Available");
     }
-  };
+  }, [cameraId, streamUrl]);
 
   // Send video frames when connected
   useEffect(() => {
     let frameInterval: NodeJS.Timeout | null = null;
     
     const sendVideoFrame = async () => {
-      if (videoRef.current && isStreaming && isConnected) {
+      if (videoRef.current && isStreaming && isConnected && isMainFeed && websocketClient) {
         const base64Image = await captureVideoFrame(videoRef.current);
         if (base64Image) {
           websocketClient.sendVideoFrame(base64Image);
@@ -69,7 +82,7 @@ export default function VideoFeed({ websocketClient, isConnected }: VideoFeedPro
       }
     };
     
-    if (isStreaming && isConnected) {
+    if (isStreaming && isConnected && isMainFeed && websocketClient) {
       // Send frames at 2fps (every 500ms)
       frameInterval = setInterval(sendVideoFrame, 500);
     }
@@ -77,47 +90,43 @@ export default function VideoFeed({ websocketClient, isConnected }: VideoFeedPro
     return () => {
       if (frameInterval) clearInterval(frameInterval);
     };
-  }, [isStreaming, isConnected, websocketClient]);
+  }, [isStreaming, isConnected, websocketClient, isMainFeed]);
 
   return (
-    <div className="relative flex flex-col items-center gap-4">
-      <div className="rounded-lg overflow-hidden border border-gray-300 bg-black relative">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className="w-full h-auto max-h-[480px]"
+    <div className="w-full h-full bg-black flex items-center justify-center relative">
+      {error ? (
+        <div className="text-white text-sm">{error}</div>
+      ) : cameraId === "test-camera" ? (
+        <video 
+          ref={videoRef} 
+          autoPlay 
+          playsInline 
+          muted 
+          className="w-full h-full object-cover" 
         />
-        {!isStreaming && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
-            <p>Camera off</p>
-          </div>
-        )}
+      ) : streamUrl ? (
+        <ReactPlayer
+          url={streamUrl}
+          playing
+          controls
+          width="100%"
+          height="100%"
+          muted
+          onError={() => {
+            setStatus("offline");
+            setError("No Stream Available");
+          }}
+        />
+      ) : (
+        <div className="text-white text-sm">No Stream Available</div>
+      )}
+
+      <div className="absolute top-2 right-2 flex items-center space-x-1.5 bg-slate-900/70 text-white text-xs px-2 py-1 rounded-full">
+        <span className={`h-2 w-2 rounded-full ${status === "active" ? "bg-green-500" : "bg-red-500"}`}></span>
+        <span>{status === "active" ? "Live" : "Offline"}</span>
       </div>
-      
-      <button
-        onClick={toggleWebcam}
-        className="absolute bottom-6 right-6 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-      >
-        {isStreaming ? (
-          <span className="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10"></path>
-              <line x1="1" y1="1" x2="23" y2="23"></line>
-            </svg>
-            Turn Off
-          </span>
-        ) : (
-          <span className="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <path d="M23 7l-7 5 7 5V7z"></path>
-              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-            </svg>
-            Turn On
-          </span>
-        )}
-      </button>
     </div>
   );
-}
+};
+
+export default VideoFeed;

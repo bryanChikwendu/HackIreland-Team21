@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -5,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { WebSocketClient } from "@/lib/websocket-client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CameraFeed } from "@/components/camera-feed";
+import VideoFeed from '@/components/video-feed';
 import EventStream from "@/components/event-stream";
 import { mockCameras, mockLocations, mockAlerts } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,10 +28,14 @@ export default function DashboardPage() {
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  // const [client, setClient] = useState<WebSocketClient | null>(null);
   const [client, setClient] = useState(null);
   const [activeAlerts, setActiveAlerts] = useState([]);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+
+  
+
 
   // Load cameras from localStorage and combine with mock data
   useEffect(() => {
@@ -96,67 +103,92 @@ export default function DashboardPage() {
   const selectedCameraData = cameras.find((cam) => cam.id === selectedCamera);
 
   return (
-    <div className="space-y-8 p-6 lg:p-8 bg-white dark:bg-gray-900 min-h-screen border-t border-gray-200 dark:border-gray-700">
-      {/* Selected Camera Feed */}
-      {selectedCameraData && (
-        <Card className="border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>{selectedCameraData?.name}</CardTitle>
-              <p className="text-sm text-muted-foreground">{selectedCameraData?.location}</p>
-            </div>
-            <Badge variant={selectedCameraData?.status === "active" ? "default" : "destructive"}>
-              {selectedCameraData?.status === "active" ? "Live" : "Offline"}
-            </Badge>
-          </CardHeader>
-          <CardContent className="p-0 ">
-            <div className="aspect-video rounded-lg overflow-hidden">
-              {client && (
-                <CameraFeed
-                  cameraId={selectedCamera}
-                  streamUrl={selectedCameraData?.streamUrl}
-                  websocketClient={client}
-                  isConnected={isConnected}
-                />
-              )}
-            </div>
-            <div className="mt-4 flex justify-center gap-4 p-4">
-              {!isConnected ? (
-                <Button
-                  onClick={handleConnect}
-                  disabled={isLoading}
-                  className="bg-green-500 hover:bg-green-600 text-white disabled:opacity-50 dark:bg-green-600 dark:hover:bg-green-700"
-                >
-                  {isLoading ? "Connecting..." : "Start AI Monitoring"}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleDisconnect}
-                  variant="destructive"
-                >
-                  Stop AI Monitoring
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+    <Tabs defaultValue="cameras" className="h-full flex flex-col p-6 lg:p-8">
+      <div className="flex justify-between items-center mb-6">
+        <TabsList>
+          <TabsTrigger value="cameras">Cameras</TabsTrigger>
+          <TabsTrigger value="locations" onClick={() => router.push("/locations")}>
+            Locations
+          </TabsTrigger>
+          <TabsTrigger value="alerts">Alerts</TabsTrigger>
+        </TabsList>
+      </div>
 
-      {client && isConnected && (
+      {/* Cameras Tab */}
+      {/* <TabsContent value="cameras" className="flex-1">
+        <div className="space-y-8"> */}
+          {/* Main Camera Feed */}
+          {selectedCameraData && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>{selectedCameraData?.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{selectedCameraData?.location}</p>
+                </div>
+                <Badge variant={selectedCameraData?.status === "active" ? "default" : "destructive"}>
+                  {selectedCameraData?.status === "active" ? "Live" : "Offline"}
+                </Badge>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="aspect-video rounded-lg overflow-hidden">
+                  {/* {client && (
+                    <CameraFeed
+                      cameraId={selectedCamera}
+                      streamUrl={selectedCameraData?.streamUrl}
+                      websocketClient={client}
+                      isConnected={isConnected}
+                    />
+                  )} */}
+
+{client && (
+  <VideoFeed
+    cameraId={selectedCamera}
+    streamUrl={selectedCameraData?.streamUrl}
+    websocketClient={client}
+    isConnected={isConnected}
+    isMainFeed={true}
+  />
+)}
+                </div>
+                <div className="mt-4 flex justify-center gap-4 p-4">
+                  {!isConnected ? (
+                    <Button
+                      onClick={handleConnect}
+                      disabled={isLoading}
+                      className="bg-green-500 hover:bg-green-600 text-white disabled:opacity-50"
+                    >
+                      {isLoading ? "Connecting..." : "Start Event Monitoring"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleDisconnect}
+                      variant="destructive"
+                    >
+                      Stop Event Monitoring
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+      
         <Card className="border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
           <CardHeader>
             <CardTitle>AI Detection Events</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-96">
+                {client &&  (
               <EventStream
                 websocketClient={client}
                 isConnected={isConnected}
               />
+                )}
             </div>
           </CardContent>
         </Card>
-      )}
+      
 
       {/* Camera List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -269,6 +301,8 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </Tabs>
+
+    // </div>
   );
 }
