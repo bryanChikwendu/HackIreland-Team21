@@ -78,13 +78,13 @@ export function Header({ setIsSidebarOpen }) {
         </Button>
 
         {/* Settings Button */}
-        <Button 
+        {/* <Button 
           variant="outline" 
           size="icon" 
           className="border border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-md bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
         >
           <Settings className="h-5 w-5 dark:text-white" />
-        </Button>
+        </Button> */}
       </div>
     </header>
   );
