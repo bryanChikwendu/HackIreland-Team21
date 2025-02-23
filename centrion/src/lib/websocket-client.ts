@@ -227,7 +227,7 @@ export class WebSocketClient extends EventEmitter<MonitorWebSocketEvents> {
 
   // Throttle frames to once every 2 seconds
   private lastProcessedFrame: number = 0;
-  private throttleMs: number = 2000;
+  private throttleMs: number = 2500;
 
   // Accumulate partial chunks
   private partialResponseBuffer: string = '';
@@ -295,24 +295,25 @@ You are an event monitor analyzing a live video feed.
 
 **Output exactly one line** with this format:
   "<Category>: <Short description>. [Tag]"
-Where <Category> is one of: "Threatening", "Non-threatening", or "Unsure".
+Where <Category> is one of: "Threatening", "Non-threatening", or "Precaution".
 
 - If Category is "Threatening", append "[ALERT]" at the very end of the sentence.
-- If Category is "Unsure", append "[MONITOR]" at the end of the sentence.
+- If Category is "Precaution", append "[MONITOR]" at the end of the sentence.
 - If Category is "Non-threatening", do not append any bracketed tag at the end.
 - If the scene remains unchanged, output just " " (a single space), nothing else.
 
 Rules:
 - Only use "Threatening" if there's immediate danger or harm (weapons, assault).
-- Use "Unsure" if not certain or ambiguous.
+- Use "Precaution" if not certain or ambiguous.
 - Otherwise, "Non-threatening".
 - Provide a concise description of what's seen, then a period.
-- For Threatening or Unsure, add the bracketed tag at the end. For Non-threatening, no bracket.
+- For Threatening or Precaution, add the bracketed tag at the end. For Non-threatening, no bracket.
 - If unchanged, a single space " ".
+- If someone else points an object as someone elses head or next, Raise [ALERT]
 
 Examples:
 1) "Threatening: A person holding a gun. [ALERT]"
-2) "Unsure: Movement in a dark corner. [MONITOR]"
+2) "Precaution: Movement in a dark corner. [MONITOR]"
 3) "Non-threatening: A person is reading a book."
 4) " "
 
@@ -429,8 +430,21 @@ No extra lines or additional formatting.
         this.emit('modelMessage', trimmed);
 
         // Now check for bracketed tags
+        // Call Call Function
         if (trimmed.includes('[ALERT]')) {
           // Threatening
+          try {
+            const response = await fetch('http://localhost:8001/trigger-alert', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+      
+            const data = await response.json();
+          } catch (error) {
+        };
+      
           this.emit('threat', trimmed);
         } else if (trimmed.includes('[MONITOR]')) {
           // Unsure
