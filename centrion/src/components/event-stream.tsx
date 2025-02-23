@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import { WebSocketClient } from "@/lib/websocket-client";
 
 interface Event {
@@ -15,13 +17,19 @@ interface EventStreamProps {
 export default function EventStream({ websocketClient, isConnected }: EventStreamProps) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isPolling, setIsPolling] = useState(false);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true); // Toggle for autoscroll
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
   const eventsEndRef = useRef<HTMLDivElement>(null);
+  const eventStreamRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new events come in
-  // useEffect(() => {
-  //   eventsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, [events]);
+  useEffect(() => {
+    const el = eventStreamRef.current;
+
+    if (autoScrollEnabled && el) {
+      el.scrollTop = el.scrollHeight; // Scroll to the bottom of the container
+    }
+  }, [events, autoScrollEnabled]);
 
   // Handle incoming AI responses
   useEffect(() => {
@@ -52,7 +60,6 @@ export default function EventStream({ websocketClient, isConnected }: EventStrea
       const pollForEvents = () => {
         websocketClient.sendText(
           "Describe what you see in the video"
-          // "Describe any new or notable changes in what you see in the video feed. Focus only on significant changes and keep your response to a single, brief sentence."
         );
       };
 
@@ -83,22 +90,43 @@ export default function EventStream({ websocketClient, isConnected }: EventStrea
     };
   }, [isConnected, websocketClient]);
 
+  // Toggle autoscroll
+  const handleToggleAutoScroll = () => {
+    setAutoScrollEnabled(!autoScrollEnabled);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md h-full flex flex-col dark:bg-gray-800 dark:border-gray-700">
       {/* Header */}
-      <div className="border-b border-gray-300 p-4 dark:border-gray-700">
-        <h2 className="text-xl font-bold dark:text-white">Event Stream</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {isConnected
-            ? isPolling
-              ? "Monitoring video feed for events..."
-              : "Starting event monitoring..."
-            : "Connect to start monitoring events"}
-        </p>
+      <div className="border-b border-gray-300 p-4 dark:border-gray-700 flex justify-between">
+        <div>
+          <h2 className="text-xl font-bold dark:text-white">Event Stream</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {isConnected
+              ? isPolling
+                ? "Monitoring video feed for events..."
+                : "Starting event monitoring..."
+              : "Connect to start monitoring events"}
+          </p>
+        </div>
+
+        {/* Toggle Button for Autoscroll */}
+        <button
+          onClick={handleToggleAutoScroll}
+          className={`text-xs px-3 py-1 rounded-lg ${
+            autoScrollEnabled ? "bg-green-500" : "bg-red-500"
+          } text-white`}
+        >
+          {autoScrollEnabled ? "Disable Auto-Scroll" : "Enable Auto-Scroll"}
+        </button>
       </div>
 
       {/* Event Stream List with Dark Mode Scrollbar */}
-      <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
+      <div
+        ref={eventStreamRef}
+        className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800"
+        style={{ maxHeight: "500px" }} // Set a fixed max height for the event stream div
+      >
         {events.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
             <p>No events detected yet</p>
@@ -118,7 +146,6 @@ export default function EventStream({ websocketClient, isConnected }: EventStrea
                 </p>
               </div>
             ))}
-            <div ref={eventsEndRef} />
           </div>
         )}
       </div>

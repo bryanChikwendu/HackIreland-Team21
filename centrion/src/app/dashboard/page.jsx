@@ -104,15 +104,12 @@ export default function DashboardPage() {
 
   return (
     <Tabs defaultValue="cameras" className="h-full flex flex-col p-6 lg:p-8">
-      <div className="flex justify-between items-center mb-6">
-      </div>
-
       {/* Cameras Tab */}
       {/* <TabsContent value="cameras" className="flex-1">
         <div className="space-y-8"> */}
           {/* Main Camera Feed */}
           {selectedCameraData && (
-            <Card>
+            <Card className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="dark:text-white">{selectedCameraData?.name}</CardTitle>
@@ -165,7 +162,7 @@ export default function DashboardPage() {
           )}
 
       
-        <Card className="border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+        <Card className="border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white my-4">
           <CardHeader>
             <CardTitle>AI Detection Events</CardTitle>
           </CardHeader>
