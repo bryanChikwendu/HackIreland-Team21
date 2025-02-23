@@ -2,7 +2,9 @@ import OpenAI from "openai";
 
 // Ensure you have your OpenAI API key in an environment variable
 const openai = new OpenAI({
-  apiKey: "",
+  
+  apiKey: "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",
+  organization: "org-vxRdG8vMBRLo6eFGAFxRTpL6",
   dangerouslyAllowBrowser: true
 });
 
@@ -17,7 +19,7 @@ Only output a single sentence following this format.
 export async function formatGeminiOutput(rawText, prompt = defaultPrompt) {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",  // Use a lightweight model like `gpt-3.5-turbo` if needed
+      model: "gpt-4o",  // Use a lightweight model like `gpt-3.5-turbo` if needed
       messages: [
         { role: "system", content: prompt },
         { role: "user", content: `Input: ${rawText}\n\nOutput:` }

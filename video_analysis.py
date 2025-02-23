@@ -29,13 +29,13 @@ with open(".env", 'r') as file:
     openai_token = file.readline().strip('\n')
 
 oclient = OpenAI(
-    api_key=""
+    api_key=openai_token
 )
 replicate = Client(api_token=token)
 
 prompt = "What is happening in the video?"
 
-app = Flask(__name__)
+
 
 class TimeDur(BaseModel):
     begin: str
