@@ -28,14 +28,12 @@ with open(".env", 'r') as file:
     token = file.readline().strip('\n')
     openai_token = file.readline().strip('\n')
 
-
 oclient = OpenAI(
-    api_key=openai_token
+    api_key=""
 )
 replicate = Client(api_token=token)
 
 prompt = "What is happening in the video?"
-
 
 app = Flask(__name__)
 
@@ -43,14 +41,13 @@ class TimeDur(BaseModel):
     begin: str
     end: str
     
-
 # JSON : {"path":"C:/path/to/mp4.mp4", "prompt":"What time does the baby fall over?"}
 @app.route("/ask", methods=['POST'])
 def upd():
     content = request.json
     global video
     global prompt
-    video = open(content["path"], "rb");
+    video = open(content["path"], "rb")
     prompt = content["prompt"]
     input = {
         "video": video,
