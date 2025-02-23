@@ -4,27 +4,72 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { AudioWaveform, Activity, Link, Code, Phone, Mail, Plus, X } from "lucide-react";
+import { Plus, X, Trash, BellRing, Lightbulb, Mic, Phone, Code, Mail, Activity, Droplet } from "lucide-react";
 
 export default function ActionsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [action, setAction] = useState({
+  const [editMode, setEditMode] = useState(false);
+  const [selectedActionIndex, setSelectedActionIndex] = useState(null);
+
+  const [actions, setActions] = useState([
+    { title: "Call Emergency Service", description: "Automatically call emergency services in case of danger.", action: "Phone Call" },
+    { title: "Turn On Lights", description: "Switch on lights when motion is detected.", action: "Activate Lights" },
+    { title: "Open Microphone", description: "Enable microphone for real-time audio monitoring.", action: "Enable Mic" },
+    { title: "Send Audio Input (TTS)", description: "Broadcast a pre-recorded or generated text-to-speech message.", action: "Audio Alert" },
+    { title: "Turn On Sprinklers", description: "Activate sprinklers in case of fire detection.", action: "Fire Safety" },
+    { title: "Send Text SMS", description: "Send an SMS alert to predefined contacts.", action: "Text Alert" },
+    { title: "Alert Private Security", description: "Notify private security about an incident.", action: "Security Alert" },
+    { title: "Send Webhook", description: "Trigger an external webhook event.", action: "Webhook Notification" },
+    { title: "Send API Request", description: "Make an API request to another system.", action: "API Call" },
+    { title: "Send an Email", description: "Send an automated email notification.", action: "Email" },
+  ]);
+
+  const [newAction, setNewAction] = useState({
     title: "",
-    purpose: "",
+    description: "",
     action: "",
   });
 
-  const handleChange = (e) => {
-    setAction({
-      ...action,
-      [e.target.name]: e.target.value,
-    });
+  const actionsList = [
+    "Phone Call",
+    "Activate Lights",
+    "Enable Mic",
+    "Audio Alert",
+    "Fire Safety",
+    "Text Alert",
+    "Security Alert",
+    "Webhook Notification",
+    "API Call",
+    "Email"
+  ];
+
+  const handleAddNew = () => {
+    setNewAction({ title: "", description: "", action: "" });
+    setEditMode(false);
+    setIsFormOpen(true);
+  };
+
+  const handleEditAction = (index) => {
+    setNewAction(actions[index]);
+    setSelectedActionIndex(index);
+    setEditMode(true);
+    setIsFormOpen(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("New Action:", action);
-    alert("Action added successfully!");
+    if (editMode) {
+      const updatedActions = [...actions];
+      updatedActions[selectedActionIndex] = newAction;
+      setActions(updatedActions);
+    } else {
+      setActions([...actions, newAction]);
+    }
+    setIsFormOpen(false);
+  };
+
+  const handleDelete = () => {
+    setActions(actions.filter((_, index) => index !== selectedActionIndex));
     setIsFormOpen(false);
   };
 
@@ -34,20 +79,24 @@ export default function ActionsPage() {
 
       {/* Action Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { name: "Audio", icon: <AudioWaveform className="h-6 w-6" />, description: "Trigger audio alerts" },
-          { name: "BPM", icon: <Activity className="h-6 w-6" />, description: "Monitor biometric signals" },
-          { name: "Webhooks", icon: <Link className="h-6 w-6" />, description: "Connect external services" },
-          { name: "API", icon: <Code className="h-6 w-6" />, description: "Trigger API-based actions" },
-          { name: "Phone", icon: <Phone className="h-6 w-6" />, description: "Send automated calls" },
-          { name: "Email", icon: <Mail className="h-6 w-6" />, description: "Send automated emails" },
-        ].map((tile, index) => (
-          <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex items-center space-x-4">
-            <div className="p-3 bg-gray-200 dark:bg-gray-700 rounded-md">{tile.icon}</div>
-            <div>
-              <h3 className="font-semibold">{tile.name}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{tile.description}</p>
+        {actions.map((action, index) => (
+          <div
+            key={index}
+            className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            onClick={() => handleEditAction(index)}
+          >
+            <div className="flex items-center space-x-3">
+              {action.action.includes("Phone") && <Phone className="h-6 w-6 text-blue-500" />}
+              {action.action.includes("Lights") && <Lightbulb className="h-6 w-6 text-yellow-500" />}
+              {action.action.includes("Mic") && <Mic className="h-6 w-6 text-gray-500" />}
+              {action.action.includes("Fire") && <Droplet className="h-6 w-6 text-blue-500" />}
+              {action.action.includes("Alert") && <BellRing className="h-6 w-6 text-red-500" />}
+              {action.action.includes("Webhook") && <Code className="h-6 w-6 text-purple-500" />}
+              {action.action.includes("Email") && <Mail className="h-6 w-6 text-green-500" />}
+              {action.action.includes("API") && <Activity className="h-6 w-6 text-orange-500" />}
+              <h3 className="font-semibold">{action.title}</h3>
             </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{action.description}</p>
           </div>
         ))}
       </div>
@@ -56,17 +105,17 @@ export default function ActionsPage() {
       <Button
         variant="default"
         className="fixed bottom-6 right-6 rounded-full h-14 w-14 flex items-center justify-center shadow-lg"
-        onClick={() => setIsFormOpen(true)}
+        onClick={handleAddNew}
       >
         <Plus className="h-6 w-6" />
       </Button>
 
-      {/* Add Action Form */}
+      {/* Add/Edit Action Form */}
       {isFormOpen && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Add New Action</h2>
+              <h2 className="text-lg font-semibold">{editMode ? "Edit Action" : "Add New Action"}</h2>
               <Button variant="ghost" size="icon" onClick={() => setIsFormOpen(false)}>
                 <X className="h-5 w-5" />
               </Button>
@@ -77,8 +126,8 @@ export default function ActionsPage() {
                 <Input
                   type="text"
                   name="title"
-                  value={action.title}
-                  onChange={handleChange}
+                  value={newAction.title}
+                  onChange={(e) => setNewAction({ ...newAction, title: e.target.value })}
                   required
                   placeholder="Enter action title"
                 />
@@ -88,28 +137,25 @@ export default function ActionsPage() {
                 <label className="block text-sm font-medium">Description</label>
                 <Textarea
                   name="description"
-                  value={action.description}
-                  onChange={handleChange}
+                  value={newAction.description}
+                  onChange={(e) => setNewAction({ ...newAction, description: e.target.value })}
                   required
                   placeholder="Describe the purpose of this action"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium">Action</label>
-                <Input
-                  type="text"
-                  name="action"
-                  value={action.action}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter action details"
-                />
+              {/* Spaced Buttons */}
+              <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-3 sm:space-y-0">
+                {editMode && (
+                  <Button variant="destructive" onClick={handleDelete} className="w-full sm:w-auto">
+                    <Trash className="h-5 w-5 mr-2" />
+                    Delete
+                  </Button>
+                )}
+                <Button type="submit" className="w-full sm:w-auto">
+                  {editMode ? "Update Action" : "Add Action"}
+                </Button>
               </div>
-
-              <Button type="submit" className="w-full">
-                Add Action
-              </Button>
             </form>
           </div>
         </div>

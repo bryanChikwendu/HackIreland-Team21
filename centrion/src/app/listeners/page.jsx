@@ -4,34 +4,77 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, X, BellRing } from "lucide-react";
+import { Plus, X, BellRing, Trash } from "lucide-react";
 
 export default function ListenersPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedListenerIndex, setSelectedListenerIndex] = useState(null);
+
   const [listeners, setListeners] = useState([
-    { title: "Door Open", description: "Call me when the door opens", action: "Phone Call" },
-    { title: "Man in Hoodie", description: "Email me when a man in a hoodie walks by", action: "Email Alert" },
+    { title: "Baby Turns Over", description: "Call me when the baby turns over", action: "Phone Call" },
+    { title: "Bag with Red Ribbon Passes", description: "Send an email when a bag with a red ribbon is detected", action: "Email Alert" },
+    { title: "Elderly Person Falls", description: "Alert security when an elderly person falls", action: "Alert Private Security" },
+    { title: "Bio Signals Are Erratic", description: "Trigger emergency response for unusual biometric signals", action: "Call Emergency Service" },
+    { title: "Audio Signals", description: "Notify when abnormal audio patterns are detected", action: "Audio Alert" },
+    { title: "Camera Is Covered", description: "Alert when the camera is physically obstructed", action: "Send Webhook" },
+    { title: "Audio Is Jammed", description: "Notify when the microphone input is jammed", action: "Send API Request" },
+    { title: "Postman Comes Over", description: "Notify when the postman arrives", action: "Send Text SMS" },
+    { title: "Dangerous Event Occurs", description: "Trigger an alarm for critical security events", action: "Turn On Lights" },
   ]);
+
   const [newListener, setNewListener] = useState({
     title: "",
     description: "",
-    purpose: "",
     action: "",
   });
 
-  const actionsList = ["Audio Alert", "BPM Monitoring", "Webhook Trigger", "API Call", "Phone Call", "Email Alert"];
+  const actionsList = [
+    "Call Emergency Service",
+    "Turn On Lights",
+    "Open Microphone",
+    "Send Audio Input (TTS)",
+    "Turn On Sprinklers",
+    "Send Text SMS",
+    "Alert Private Security",
+    "Send Webhook",
+    "Send API Request",
+    "Send an Email"
+  ];
 
-  const handleChange = (e) => {
-    setNewListener({
-      ...newListener,
-      [e.target.name]: e.target.value,
-    });
+  // Open form to add a new listener
+  const handleAddNew = () => {
+    setNewListener({ title: "", description: "", action: "" });
+    setEditMode(false);
+    setIsFormOpen(true);
   };
 
+  // Open form to edit an existing listener
+  const handleEditListener = (index) => {
+    setNewListener(listeners[index]);
+    setSelectedListenerIndex(index);
+    setEditMode(true);
+    setIsFormOpen(true);
+  };
+
+  // Save a new or edited listener
   const handleSubmit = (e) => {
     e.preventDefault();
-    setListeners([...listeners, newListener]);
-    setNewListener({ title: "", description: "", purpose: "", action: "" });
+    if (editMode) {
+      // Update existing listener
+      const updatedListeners = [...listeners];
+      updatedListeners[selectedListenerIndex] = newListener;
+      setListeners(updatedListeners);
+    } else {
+      // Add new listener
+      setListeners([...listeners, newListener]);
+    }
+    setIsFormOpen(false);
+  };
+
+  // Delete a listener
+  const handleDelete = () => {
+    setListeners(listeners.filter((_, index) => index !== selectedListenerIndex));
     setIsFormOpen(false);
   };
 
@@ -42,7 +85,11 @@ export default function ListenersPage() {
       {/* Listener Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {listeners.map((listener, index) => (
-          <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col">
+          <div
+            key={index}
+            className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            onClick={() => handleEditListener(index)}
+          >
             <div className="flex items-center space-x-3">
               <BellRing className="h-6 w-6 text-blue-500" />
               <h3 className="font-semibold">{listener.title}</h3>
@@ -57,17 +104,17 @@ export default function ListenersPage() {
       <Button
         variant="default"
         className="fixed bottom-6 right-6 rounded-full h-14 w-14 flex items-center justify-center shadow-lg"
-        onClick={() => setIsFormOpen(true)}
+        onClick={handleAddNew}
       >
         <Plus className="h-6 w-6" />
       </Button>
 
-      {/* Add Listener Form */}
+      {/* Add/Edit Listener Form */}
       {isFormOpen && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Add New Listener</h2>
+              <h2 className="text-lg font-semibold">{editMode ? "Edit Listener" : "Add New Listener"}</h2>
               <Button variant="ghost" size="icon" onClick={() => setIsFormOpen(false)}>
                 <X className="h-5 w-5" />
               </Button>
@@ -79,7 +126,7 @@ export default function ListenersPage() {
                   type="text"
                   name="title"
                   value={newListener.title}
-                  onChange={handleChange}
+                  onChange={(e) => setNewListener({ ...newListener, title: e.target.value })}
                   required
                   placeholder="Enter event title"
                 />
@@ -90,20 +137,9 @@ export default function ListenersPage() {
                 <Textarea
                   name="description"
                   value={newListener.description}
-                  onChange={handleChange}
+                  onChange={(e) => setNewListener({ ...newListener, description: e.target.value })}
                   required
                   placeholder="Describe the event listener"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium">Purpose</label>
-                <Textarea
-                  name="purpose"
-                  value={newListener.purpose}
-                  onChange={handleChange}
-                  required
-                  placeholder="Why is this listener needed?"
                 />
               </div>
 
@@ -112,7 +148,7 @@ export default function ListenersPage() {
                 <select
                   name="action"
                   value={newListener.action}
-                  onChange={handleChange}
+                  onChange={(e) => setNewListener({ ...newListener, action: e.target.value })}
                   required
                   className="w-full px-3 py-2 border rounded-md focus:outline-none bg-gray-100 dark:bg-gray-800"
                 >
@@ -123,9 +159,17 @@ export default function ListenersPage() {
                 </select>
               </div>
 
-              <Button type="submit" className="w-full">
-                Add Listener
-              </Button>
+              <div className="flex justify-between items-center space-x-4">
+                {editMode && (
+                  <Button variant="destructive" onClick={handleDelete}>
+                    <Trash className="h-5 w-5 mr-2" />
+                    Delete
+                  </Button>
+                )}
+                <Button type="submit" className="w-full">
+                  {editMode ? "Update Listener" : "Add Listener"}
+                </Button>
+              </div>
             </form>
           </div>
         </div>
