@@ -1,7 +1,6 @@
-"use client";
-
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { WebSocketClient } from "@/lib/websocket-client";
+import { Bell } from "lucide-react"; // Bell icon for the alert
 
 interface Event {
   id: string;
@@ -16,22 +15,12 @@ interface EventStreamProps {
 
 export default function EventStream({ websocketClient, isConnected }: EventStreamProps) {
   const [events, setEvents] = useState<Event[]>([]);
+  const [alerts, setAlerts] = useState<string[]>([]); // To store alerts
   const [isPolling, setIsPolling] = useState(false);
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true); // Toggle for autoscroll
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
-  const eventsEndRef = useRef<HTMLDivElement>(null);
   const eventStreamRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new events come in
-  useEffect(() => {
-    const el = eventStreamRef.current;
-
-    if (autoScrollEnabled && el) {
-      el.scrollTop = el.scrollHeight; // Scroll to the bottom of the container
-    }
-  }, [events, autoScrollEnabled]);
-
-  // Handle incoming AI responses
   useEffect(() => {
     const handleModelMessage = (message: string) => {
       if (message.trim()) {
@@ -43,6 +32,14 @@ export default function EventStream({ websocketClient, isConnected }: EventStrea
             timestamp: new Date(),
           },
         ]);
+
+        // If message contains '[MONITOR]', create an alert
+        if (message.includes("[MONITOR]")) {
+          setAlerts((prevAlerts) => [
+            ...prevAlerts,
+            `New monitoring alert: ${message}`,
+          ]);
+        }
       }
     };
 
@@ -52,45 +49,13 @@ export default function EventStream({ websocketClient, isConnected }: EventStrea
     };
   }, [websocketClient]);
 
-  // Handle continuous prompting
+  // Auto-scroll to the bottom when new events come in
   useEffect(() => {
-    const startPolling = () => {
-      if (pollingInterval.current) return;
-
-      const pollForEvents = () => {
-        websocketClient.sendText(
-          "Describe what you see in the video"
-        );
-      };
-
-      // Initial poll
-      pollForEvents();
-
-      // Set up interval
-      pollingInterval.current = setInterval(pollForEvents, 3000);
-      setIsPolling(true);
-    };
-
-    const stopPolling = () => {
-      if (pollingInterval.current) {
-        clearInterval(pollingInterval.current);
-        pollingInterval.current = null;
-      }
-      setIsPolling(false);
-    };
-
-    if (isConnected) {
-      startPolling();
-    } else {
-      stopPolling();
+    if (autoScrollEnabled && eventStreamRef.current) {
+      eventStreamRef.current.scrollTop = eventStreamRef.current.scrollHeight;
     }
+  }, [events, autoScrollEnabled]);
 
-    return () => {
-      stopPolling();
-    };
-  }, [isConnected, websocketClient]);
-
-  // Toggle autoscroll
   const handleToggleAutoScroll = () => {
     setAutoScrollEnabled(!autoScrollEnabled);
   };
@@ -110,22 +75,26 @@ export default function EventStream({ websocketClient, isConnected }: EventStrea
           </p>
         </div>
 
-        {/* Toggle Button for Autoscroll */}
-        <button
-          onClick={handleToggleAutoScroll}
-          className={`text-xs px-3 py-1 rounded-lg ${
-            autoScrollEnabled ? "bg-green-500" : "bg-red-500"
-          } text-white`}
-        >
-          {autoScrollEnabled ? "Disable Auto-Scroll" : "Enable Auto-Scroll"}
-        </button>
+        {/* Bell Icon Button to show alerts */}
+        <div className="relative">
+          <button
+            className="text-gray-500 dark:text-gray-400"
+            onClick={() => alert("Navigate to Alerts page")}
+          >
+            <Bell className="h-6 w-6" />
+            {alerts.length > 0 && (
+              <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs px-2">
+                {alerts.length}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Event Stream List with Dark Mode Scrollbar */}
+      {/* Event Stream List */}
       <div
         ref={eventStreamRef}
         className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800"
-        style={{ maxHeight: "500px" }} // Set a fixed max height for the event stream div
       >
         {events.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
@@ -138,9 +107,7 @@ export default function EventStream({ websocketClient, isConnected }: EventStrea
                 key={event.id}
                 className="bg-gray-50 rounded-lg p-3 border border-gray-200 dark:bg-gray-700 dark:border-gray-600"
               >
-                <p className="text-gray-800 dark:text-gray-100">
-                  {event.description.replace("Event:", "").trim()}
-                </p>
+                <p className="text-gray-800 dark:text-gray-100">{event.description}</p>
                 <p className="text-xs text-gray-500 mt-1 dark:text-gray-400">
                   {event.timestamp.toLocaleTimeString()}
                 </p>

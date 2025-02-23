@@ -185,22 +185,26 @@ export default function DashboardPage() {
     <CardTitle>Watch Parameters</CardTitle>
   </CardHeader>
   <CardContent>
-    <form onSubmit={(e) => {
+  <form
+    onSubmit={(e) => {
       e.preventDefault();
       if (client) {
         client.updateWatchParameters(watchParameters);
       }
-    }}>
-      <div className="flex gap-2">
-        <Input 
-          placeholder="Enter things to watch out for..."
-          value={watchParameters}
-          onChange={(e) => setWatchParameters(e.target.value)}
-        />
-        <Button type="submit">Update</Button>
-      </div>
-    </form>
-  </CardContent>
+      // Reset the input field by clearing the state
+      setWatchParameters('');
+    }}
+  >
+    <div className="flex gap-2">
+      <Input
+        placeholder="Enter things to watch out for..."
+        value={watchParameters}
+        onChange={(e) => setWatchParameters(e.target.value)}
+      />
+      <Button type="submit">Update</Button>
+    </div>
+  </form>
+</CardContent>
 </Card>
       
 

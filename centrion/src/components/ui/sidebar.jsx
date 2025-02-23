@@ -94,7 +94,6 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
             <ul className="space-y-1">
               {[
                 { name: "Users", icon: <Users className="w-5 h-5" />, href: "/users" },
-                { name: "Settings", icon: <Settings className="w-5 h-5" />, href: "/settings" },
               ].map(({ name, icon, href }) => (
                 <li key={name}>
                   <Button
