@@ -105,13 +105,6 @@ export default function DashboardPage() {
   return (
     <Tabs defaultValue="cameras" className="h-full flex flex-col p-6 lg:p-8">
       <div className="flex justify-between items-center mb-6">
-        <TabsList>
-          <TabsTrigger value="cameras">Cameras</TabsTrigger>
-          <TabsTrigger value="locations" onClick={() => router.push("/locations")}>
-            Locations
-          </TabsTrigger>
-          <TabsTrigger value="alerts">Alerts</TabsTrigger>
-        </TabsList>
       </div>
 
       {/* Cameras Tab */}
@@ -122,7 +115,7 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>{selectedCameraData?.name}</CardTitle>
+                  <CardTitle className="dark:text-white">{selectedCameraData?.name}</CardTitle>
                   <p className="text-sm text-muted-foreground">{selectedCameraData?.location}</p>
                 </div>
                 <Badge variant={selectedCameraData?.status === "active" ? "default" : "destructive"}>
@@ -139,16 +132,15 @@ export default function DashboardPage() {
                       isConnected={isConnected}
                     />
                   )} */}
-
-{client && (
-  <VideoFeed
-    cameraId={selectedCamera}
-    streamUrl={selectedCameraData?.streamUrl}
-    websocketClient={client}
-    isConnected={isConnected}
-    isMainFeed={true}
-  />
-)}
+                {client && (
+                  <VideoFeed
+                    cameraId={selectedCamera}
+                    streamUrl={selectedCameraData?.streamUrl}
+                    websocketClient={client}
+                    isConnected={isConnected}
+                    isMainFeed={true}
+                  />
+                )}
                 </div>
                 <div className="mt-4 flex justify-center gap-4 p-4">
                   {!isConnected ? (
@@ -302,7 +294,5 @@ export default function DashboardPage() {
         </DialogContent>
       </Dialog>
       </Tabs>
-
-    // </div>
   );
 }

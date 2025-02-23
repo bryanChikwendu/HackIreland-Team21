@@ -256,7 +256,7 @@ const TimelineScrubber = ({ duration = 15, currentTime = 0, highlights = [], onT
 
   return (
     <div className="space-y-2">
-      <div className="text-sm font-medium">Timeline</div>
+      <div className="text-sm font-medium dark:text-white">Timeline</div>
       <div 
         ref={timelineRef}
         className="relative h-24 bg-slate-900 rounded-md cursor-pointer overflow-hidden"
@@ -432,16 +432,16 @@ const CentrionIntelligence = () => {
     <div className="h-full grid grid-cols-12 gap-6">
       {/* Left Column - Video Player and Controls */}
       <div className="col-span-7 space-y-6">
-        <Card className="h-full flex flex-col">
+        <Card className="h-full flex flex-col dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Video Analysis</CardTitle>
+            <CardTitle className="dark:text-white">Video Analysis</CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col space-y-4">
             {!videoUrl ? (
               <div className="border-2 border-dashed rounded-lg p-8 text-center flex-1 flex flex-col items-center justify-center">
                 <Upload className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="font-medium mb-2">Upload Video for Analysis</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <h3 className="font-medium mb-2 dark:text-white">Upload Video for Analysis</h3>
+                <p className="text-sm text-muted-foreground mb-4 dark:text-gray-400">
                   Drag and drop your video file here or click to browse
                 </p>
                 <Input
@@ -487,9 +487,9 @@ const CentrionIntelligence = () => {
 
       {/* Right Column - Chat Interface */}
       <div className="col-span-5">
-        <Card className="h-full flex flex-col">
+        <Card className="h-full flex flex-col dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Intelligence Chat</CardTitle>
+            <CardTitle className="dark:text-white">Intelligence Chat</CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
             <ScrollArea className="flex-1 pr-4">
@@ -505,7 +505,7 @@ const CentrionIntelligence = () => {
                       className={`rounded-lg p-4 max-w-[80%] ${
                         message.type === 'user'
                           ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
+                          : 'bg-muted dark:bg-gray-700 dark:text-white'
                       }`}
                     >
                       <p>{message.text}</p>
@@ -529,7 +529,7 @@ const CentrionIntelligence = () => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Ask about the video..."
-                className="flex-1"
+                className="flex-1 dark:text-white"
               />
               <Button type="submit">
                 <Search className="h-4 w-4" />

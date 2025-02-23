@@ -17,7 +17,7 @@ Only output a single sentence following this format.
 export async function formatGeminiOutput(rawText, prompt = defaultPrompt) {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",  // Use a lightweight model like `gpt-3.5-turbo` if needed
+      model: "gpt-4o-mini",  // Use a lightweight model like `gpt-3.5-turbo` if needed
       messages: [
         { role: "system", content: prompt },
         { role: "user", content: `Input: ${rawText}\n\nOutput:` }
