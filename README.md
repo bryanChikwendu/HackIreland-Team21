@@ -1,19 +1,31 @@
-# Team21 - Centrion
-## AI Video Analysis for Everything
-We provide the ability to make any camera or stream intelligent.  
-- Monitor for *anything* and configure custom responses
-- Intelligently converse with your recorded footage.
-- Reason about the content of live video in *real-time*.
+# g21 Labs
+# Centrion - Intelligent Video Analysis
+A real-time video monitoring system that leverages AI to analyze camera feeds, detect events, and trigger automated responses.
 
-## Setup
-Create a file named .env in the same directory as the backend, where the first line is your [Replicate key](https://replicate.com/), and the second line is an openAI key.  
-Similarly, configure the Google Gemini keys.  
-Run the backend Flask application on port *8000*.   
-Run the frontend React application.  
-> [!NOTE]
-> Mac users may need to modify some file-paths in the frontend (C:/Users.. => Users/)
+## Features
+- Real-time video stream analysis using AI models
+- Custom event detection and automated responses 
+- Interactive video querying and analysis
+- Multi-camera management and monitoring
+- Event logging and alert system
+- Dark/light theme support
 
 ## Tech Stack
-Python (Flask) + Javascript (React).  
-Replicate is used to host and run more bespoke models.  
-Various APIs from Google and OpenAI are used to call their standard models.
+- Frontend: React, TailwindCSS, ShadcnUI
+- Backend: Flask
+- AI: Google Gemini API, OpenAI API, Replicate
+- WebSocket for real-time communication
+
+## Getting Started
+1. Clone the repository
+2. Configure API keys in `.env`:
+```env
+REPLICATE_API_KEY=your_key
+OPENAI_API_KEY=your_key 
+GEMINI_API_KEY=your_key
+```
+## License
+-
+
+## Note
+This project is under active development. For bugs and feature requests, please open an issue.
