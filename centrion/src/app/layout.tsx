@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <title>Centrion - Context-Aware Security Surveillance</title>
         <meta name="description" content="AI-powered surveillance system that understands context rather than just recording footage" />
       </head>
-      <body className="flex h-screen overflow-hidden bg-slate-50">
+      <body className="flex h-screen overflow-hidden bg-slate-50 dark:bg-gray-900">
         <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header setIsSidebarOpen={setIsSidebarOpen} />

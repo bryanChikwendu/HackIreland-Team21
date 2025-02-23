@@ -35,10 +35,10 @@ export default function AlertsPage() {
     <div className="p-6 lg:p-8 space-y-6">
       <h1 className="text-2xl font-bold">Security Alerts</h1>
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
+      <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="border-b bg-gray-100">
+            <tr className="border-b bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
               <th className="p-3 text-left font-medium">Time</th>
               <th className="p-3 text-left font-medium">Camera</th>
               <th className="p-3 text-left font-medium">Type</th>
@@ -51,7 +51,7 @@ export default function AlertsPage() {
             {alerts.map((alert) => (
               <tr
                 key={alert.id}
-                className="border-b hover:bg-gray-50 transition duration-200"
+                className="border-b hover:bg-gray-50 dark:border-gray-700 hover:dark:bg-gray-700 transition duration-200"
               >
                 <td className="p-3 text-sm">{formatDate(alert.timestamp)}</td>
                 <td
@@ -72,6 +72,7 @@ export default function AlertsPage() {
                     <Button
                       size="sm"
                       variant="outline"
+                      className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white shadow-sm dark:shadow-md hover:bg-gray-100 dark:hover:bg-gray-700"
                       onClick={() => handleResolveAlert(alert.id)}
                     >
                       Resolve

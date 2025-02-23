@@ -15,7 +15,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // ✅ Load saved cameras from localStorage & append them to mockCameras
   const [cameras, setCameras] = useState([]);
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [activeAlerts, setActiveAlerts] = useState([]);
@@ -24,23 +23,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Retrieve stored cameras from localStorage
       const storedCameras = JSON.parse(localStorage.getItem("cameras")) || [];
-      
-      // Combine mockCameras with storedCameras
       const combinedCameras = [...mockCameras, ...storedCameras];
-
-      // Set state with combined list
       setCameras(combinedCameras);
-
-      // Set the first available camera as the default selected
       setSelectedCamera(searchParams.get("camera") || combinedCameras[0]?.id);
     }
   }, []);
 
   useEffect(() => {
     if (selectedCamera) {
-      // Filter active alerts for the selected camera
       const currentAlerts = mockAlerts.filter(
         (alert) => alert.status === "active" && alert.cameraId === selectedCamera
       );
@@ -51,11 +42,11 @@ export default function DashboardPage() {
   const selectedCameraData = cameras.find((cam) => cam.id === selectedCamera);
 
   return (
-    <div className="space-y-8 p-6 lg:p-8">
+    <div className="space-y-8 p-6 lg:p-8 bg-white dark:bg-gray-900 min-h-screen border-t border-gray-200 dark:border-gray-700">
       {/* Selected Camera Feed */}
       {selectedCameraData && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700">
             <div>
               <CardTitle>{selectedCameraData?.name}</CardTitle>
               <p className="text-sm text-muted-foreground">{selectedCameraData?.location}</p>
@@ -77,7 +68,7 @@ export default function DashboardPage() {
         {cameras.map((camera) => (
           <Card
             key={camera.id}
-            className={`cursor-pointer transition duration-200 ease-in-out ${
+            className={`cursor-pointer transition duration-200 ease-in-out border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white ${
               selectedCamera === camera.id ? "ring-2 ring-blue-500" : "hover:ring-1 hover:ring-slate-300"
             }`}
             onClick={() => {
@@ -86,13 +77,13 @@ export default function DashboardPage() {
             }}
           >
             <CardContent className="p-0">
-              <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
+              <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-t-lg overflow-hidden">
                 <CameraFeed cameraId={camera.id} streamUrl={camera.streamUrl} />
               </div>
             </CardContent>
             <CardHeader>
               <CardTitle>{camera.name}</CardTitle>
-              <CardDescription>{camera.location}</CardDescription>
+              <CardDescription className="dark:text-gray-400">{camera.location}</CardDescription>
             </CardHeader>
           </Card>
         ))}
@@ -100,10 +91,10 @@ export default function DashboardPage() {
 
       {/* Alert Detail Modal */}
       <Dialog open={isAlertModalOpen} onOpenChange={setIsAlertModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl dark:bg-gray-900 dark:text-white border border-gray-200 dark:border-gray-700">
           <DialogHeader>
             <DialogTitle>Alert Details</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="dark:text-gray-300">
               {new Date(selectedAlert?.timestamp).toLocaleString()}
             </DialogDescription>
           </DialogHeader>
@@ -113,14 +104,14 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Detection Type</h3>
-                <Badge variant="outline" className="text-base">
+                <Badge variant="outline" className="text-base border border-gray-200 dark:border-gray-600">
                   {selectedAlert?.detectionType}
                 </Badge>
               </div>
 
               <div>
                 <h3 className="font-semibold mb-2">Context</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground dark:text-gray-300">
                   {selectedAlert?.context}
                 </p>
               </div>
@@ -128,7 +119,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className="font-semibold mb-2">Confidence Score</h3>
                 <div className="flex items-center space-x-2">
-                  <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
+                  <div className="h-2 flex-1 bg-muted dark:bg-gray-700 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
                     <div 
                       className="h-full bg-blue-500 rounded-full"
                       style={{ width: `${selectedAlert?.confidence * 100}%` }}
@@ -145,7 +136,7 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Detection Frame</h3>
-                <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                <div className="aspect-video rounded-lg overflow-hidden bg-muted dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                   {selectedAlert?.imageUrl && (
                     <img 
                       src={selectedAlert.imageUrl} 
@@ -161,44 +152,25 @@ export default function DashboardPage() {
           {/* Action History */}
           <div>
             <h3 className="font-semibold mb-3">Action History</h3>
-            <ScrollArea className="h-[200px]">
+            <ScrollArea className="h-[200px] border border-gray-200 dark:border-gray-700">
               <div className="space-y-3">
-              {mockAlerts.map((action, index) => (
-                <div 
-                  key={action?.id || index} // Ensure a unique key even if ID is missing
-                  className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50"
-                >
-                  <div className="rounded-full p-2 bg-background">
-                    {action?.type?.includes('Created') && <AlertTriangle className="h-4 w-4 text-yellow-600" />}
-                    {action?.type?.includes('Acknowledged') && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
-                    {action?.type?.includes('Dispatched') && <User className="h-4 w-4 text-purple-600" />}
-                    {action?.type?.includes('Assessed') && <Activity className="h-4 w-4 text-green-600" />}
+                {mockAlerts.map((action, index) => (
+                  <div 
+                    key={action?.id || index}
+                    className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                  >
+                    <p className="text-sm dark:text-gray-300">{action?.type || "Unknown Action"}</p>
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-medium text-sm">{action?.type || "Unknown Action"}</p>
-                        <p className="text-xs text-muted-foreground">By {action?.user || "Unknown User"}</p>
-                      </div>
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {action?.timestamp ? new Date(action.timestamp).toLocaleTimeString() : "N/A"}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                ))}
               </div>
             </ScrollArea>
           </div>
 
           <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="outline" onClick={() => setIsAlertModalOpen(false)}>
+            <Button variant="outline" className="dark:text-white border border-gray-200 dark:border-gray-700" onClick={() => setIsAlertModalOpen(false)}>
               Close
             </Button>
-            <Button>
-              Take Action
-            </Button>
+            <Button>Take Action</Button>
           </div>
         </DialogContent>
       </Dialog>

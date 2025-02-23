@@ -9,11 +9,10 @@ const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 export function CameraFeed({ cameraId, streamUrl }) {
   const videoRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(null);
-  const [error, setError] = useState(null); // ✅ Reset error on camera change
-  const [status, setStatus] = useState("active"); // ✅ Reset status on camera change
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState("active");
 
   useEffect(() => {
-    // ✅ Reset error and status when camera changes
     setError(null);
     setStatus("active");
 
@@ -42,11 +41,10 @@ export function CameraFeed({ cameraId, streamUrl }) {
       setStatus("offline");
       setError("No Stream Available");
     }
-  }, [cameraId, streamUrl]); // ✅ Ensure effect runs when cameraId changes
+  }, [cameraId, streamUrl]);
 
   return (
     <div className="w-full h-full bg-black flex items-center justify-center relative">
-      {/* ✅ Show "No Connection" only if this camera is affected */}
       {error ? (
         <div className="text-white text-sm">{error}</div>
       ) : cameraId === "test-camera" ? (
@@ -68,7 +66,6 @@ export function CameraFeed({ cameraId, streamUrl }) {
         <div className="text-white text-sm">No Stream Available</div>
       )}
 
-      {/* ✅ Camera ID and Timestamp */}
       {currentTime && (
         <div className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded-sm">
           <div>ID: {cameraId}</div>
@@ -76,7 +73,6 @@ export function CameraFeed({ cameraId, streamUrl }) {
         </div>
       )}
 
-      {/* ✅ Camera Status Indicator */}
       <div className="absolute top-2 right-2 flex items-center space-x-1.5 bg-slate-900/70 text-white text-xs px-2 py-1 rounded-full">
         <span className={`h-2 w-2 rounded-full ${status === "active" ? "bg-green-500" : "bg-red-500"}`}></span>
         <span>{status === "active" ? "Live" : "Offline"}</span>
