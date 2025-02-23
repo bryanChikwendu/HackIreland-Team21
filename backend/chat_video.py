@@ -2,6 +2,7 @@ from os import read
 from openai import OpenAI
 from flask import Flask, request, Response
 from pydantic import BaseModel
+from flask_cors import CORS
 
 import sys
 import replicate
@@ -25,6 +26,7 @@ prompt = "What is happening in the video?"
 
 
 app = Flask(__name__)
+CORS(app)  # This enables CORS for all routes
 
 class TimeDur(BaseModel):
     begin: str
