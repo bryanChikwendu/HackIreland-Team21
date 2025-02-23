@@ -369,7 +369,7 @@ const CentrionIntelligence = () => {
     try {
       // Create a local file path from the selected video
       const videoPath = selectedVideo.name; // You'll need to adjust this based on how you want to handle file paths
-
+      const testPath = "C:/Users/Brych/Downloads/" + videoPath;
       const response = await fetch('http://127.0.0.1:8000/ask', {
         method: 'POST',
         headers: {
@@ -377,7 +377,7 @@ const CentrionIntelligence = () => {
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          path: videoPath,
+          path: testPath,
           prompt: inputMessage
         })
       });
