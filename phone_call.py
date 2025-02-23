@@ -7,7 +7,6 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS
-
 # ------------------------------------------------------------------------------
 # Hardcoded summary for MVP (this would be LLM-generated in the real system)
 # ------------------------------------------------------------------------------
