@@ -1,2 +1,2 @@
 # HackIreland-Team21
-AI Video Analysis for Security
+AI Video Analysis for Everything
