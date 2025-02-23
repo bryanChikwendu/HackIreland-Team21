@@ -67,6 +67,7 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                 { name: "Alerts", icon: <AlertTriangle className="w-5 h-5" />, href: "/alerts" },
                 { name: "Actions", icon: <Activity className="w-5 h-5" />, href: "/actions" },
                 { name: "Listeners", icon: <Headphones className="w-5 h-5" />, href: "/listeners" },
+                { name: "Intelligence", icon: <Brain className="w-5 h-5" />, href: "/intelligence" },
               ].map(({ name, icon, href }) => (
                 <li key={name}>
                   <Button
@@ -83,20 +84,6 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                   </Button>
                 </li>
               ))}
-              <li>
-              <Button
-                  variant="ghost"
-                  className={`w-full justify-start ${
-                    pathname === "/intelligence" ? "text-blue-400 font-semibold" : "text-slate-400"
-                  }`}
-                  asChild
-                >
-                  <Link href="/intelligence">
-                    <Headphones className="w-4 h-4 mr-3" />
-                    <span>intelligence</span>
-                  </Link>
-                </Button>
-              </li>
             </ul>
           </div>
 
