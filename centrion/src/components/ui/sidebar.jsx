@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
   Camera, Map, AlertTriangle, Users, Settings, Shield, LogOut, 
-  X, Plus, Brain, Activity, Headphones, ChevronLeft, ChevronRight 
+  X, Plus, Brain, Activity, Headphones, ChevronLeft, ChevronRight, 
+  Thermometer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -63,6 +64,7 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
             <ul className="space-y-1">
               {[
                 { name: "Cameras", icon: <Camera className="w-5 h-5" />, href: "/dashboard" },
+                { name: "Sensors", icon: <Thermometer className="w-5 h-5" />, href: "/sensors" },
                 { name: "Locations", icon: <Map className="w-5 h-5" />, href: "/locations" },
                 { name: "Alerts", icon: <AlertTriangle className="w-5 h-5" />, href: "/alerts" },
                 { name: "Actions", icon: <Activity className="w-5 h-5" />, href: "/actions" },
