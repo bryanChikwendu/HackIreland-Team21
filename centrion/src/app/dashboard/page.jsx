@@ -15,6 +15,7 @@ import { AlertPanel } from "@/components/alert-panel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, AlertTriangle, Activity, CheckCircle2, Clock, User } from "lucide-react";
 
@@ -33,6 +34,7 @@ export default function DashboardPage() {
   const [activeAlerts, setActiveAlerts] = useState([]);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [watchParameters, setWatchParameters] = useState("");
 
   
 
@@ -177,6 +179,29 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+
+        <Card className="border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white mb-4">
+  <CardHeader>
+    <CardTitle>Watch Parameters</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      if (client) {
+        client.updateWatchParameters(watchParameters);
+      }
+    }}>
+      <div className="flex gap-2">
+        <Input 
+          placeholder="Enter things to watch out for..."
+          value={watchParameters}
+          onChange={(e) => setWatchParameters(e.target.value)}
+        />
+        <Button type="submit">Update</Button>
+      </div>
+    </form>
+  </CardContent>
+</Card>
       
 
       {/* Camera List */}
