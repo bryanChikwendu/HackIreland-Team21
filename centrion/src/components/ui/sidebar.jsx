@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
   Camera, Map, AlertTriangle, Users, Settings, Shield, LogOut, 
-  X, Plus, Activity, Headphones, ChevronLeft, ChevronRight 
+  X, Plus, Brain, Activity, Headphones, ChevronLeft, ChevronRight 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -83,6 +83,20 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                   </Button>
                 </li>
               ))}
+              <li>
+              <Button
+                  variant="ghost"
+                  className={`w-full justify-start ${
+                    pathname === "/intelligence" ? "text-blue-400 font-semibold" : "text-slate-400"
+                  }`}
+                  asChild
+                >
+                  <Link href="/intelligence">
+                    <Headphones className="w-4 h-4 mr-3" />
+                    <span>intelligence</span>
+                  </Link>
+                </Button>
+              </li>
             </ul>
           </div>
 
