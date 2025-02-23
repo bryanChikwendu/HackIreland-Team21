@@ -22,7 +22,7 @@ export class WebSocketClient extends EventEmitter<MonitorWebSocketEvents> {
 
   // Throttle frames to once every 2 seconds
   private lastProcessedFrame: number = 0;
-  private throttleMs: number = 2500;
+  private throttleMs: number = 750;
 
   // Accumulate partial chunks
   private partialResponseBuffer: string = '';
@@ -250,24 +250,6 @@ No extra lines or additional formatting.
           this.emit('threat', trimmed);
         } else if (trimmed.includes('[MONITOR]')) {
           // Cautious
-          try {
-            const response = await fetch('http://localhost:8003/send-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    recipient: 'shaabana@tcd.ie',
-                    subject: 'You Should Monitor this Issue',
-                    body: 'Hello, Take a look at this feed, you have to be cautious'
-                })
-            });
-        
-            const data = await response.json();
-            console.log('Response:', data);
-        } catch (error) {
-            console.error('Error:', error);
-        };
           this.emit('monitor', trimmed);
         }
 

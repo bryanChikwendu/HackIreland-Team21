@@ -137,7 +137,7 @@ const CentrionIntelligence = () => {
     try {
       // Create a local file path from the selected video
       const videoPath = selectedVideo.name; // You'll need to adjust this based on how you want to handle file paths
-      const testPath = "/Users/admin/Documents/Hackathon/" + videoPath; // change the path for yours!!!!
+      const testPath = "/Users/eniola/Downloads/" + videoPath; // change the path for yours!!!!
       console.log(testPath)
       const response = await fetch('http://127.0.0.1:8000/ask', {
         method: 'POST',
